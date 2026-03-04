@@ -10,6 +10,7 @@ pymatgen==2025.10.7
 
 # Data validation (FastAPI dependency)
 pydantic==2.10.1
+pydantic-core==2.27.1
 
 # For production deployment (optional but recommended)
 gunicorn==23.0.0
