@@ -344,7 +344,10 @@ async def health():
         "then calls compute_T2() to return the spin coherence time."
     ),
 )
-async def compute(file: UploadFile = File(..., description="CIF structure file")):
+async def compute(
+    file: UploadFile = File(..., description="CIF structure file"),
+    dimensionality: str = "2D",   # "3D" or "2D" — sent by the frontend selector
+):
     # ── Read & validate ───────────────────────────────────────────────────────
     content = await file.read()
     validate_upload(file, content)
@@ -380,7 +383,13 @@ async def compute(file: UploadFile = File(..., description="CIF structure file")
         density = 0.0
 
     # ── Compute T₂ ────────────────────────────────────────────────────────────
-    T2_value = Compute_T2(structure)
+    dim = dimensionality.strip().upper()
+    if dim == "2D":
+        # ── Placeholder: replace with your 2D function when ready ──────────
+        # T2_value = Compute_T2_2D(structure)
+        T2_value = Compute_T2(structure)   # falls back to 3D model for now
+    else:
+        T2_value = Compute_T2(structure)
 
     # ── Build response ────────────────────────────────────────────────────────
     response = ComputeResponse(

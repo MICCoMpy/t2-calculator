@@ -64,7 +64,7 @@
       <!-- CHANGE 2: hero-title now uses DM Sans (body font) via CSS override -->
       <h1 class="hero-title">
         Computing <br />
-        <span class="hero-accent">Spin Coherence Time T<sub>2</sub></span> <br />
+        <span class="hero-accent">Spin Coherence Time T₂</span> <br />
         from Crystal Structures
       </h1>
       <p class="hero-desc">
@@ -136,7 +136,22 @@
           </div>
         </div>
 
-        <!-- CHANGE 3: error hidden by default, only shown on problem (already hidden attr) -->
+        <!-- (4) Dimensionality selector -->
+        <div class="dim-selector-wrap">
+          <span class="dim-selector-label">Material dimensionality</span>
+          <div class="dim-selector-pills" role="group" aria-label="Select dimensionality">
+            <button class="dim-pill selected" id="pill3D" aria-pressed="true" onclick="selectDim('3D')">
+              3D
+              <span class="dim-pill-sub">Bulk material</span>
+            </button>
+            <button class="dim-pill" id="pill2D" aria-pressed="false" onclick="selectDim('2D')">
+              2D
+              <span class="dim-pill-sub">Monolayer / vdW</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- error hidden by default, only shown on problem -->
         <div class="error-msg" id="errorMsg" hidden role="alert">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/>
@@ -315,7 +330,7 @@
 
           <div class="theory-eq">
             \[
-              n^{\mathrm{2D}}_\alpha = n^{\mathrm{3D}}_\alpha \cdot d
+              n^{\mathrm{2D}}_i = n^{\mathrm{3D}}_i \cdot d
             \]
           </div>
 

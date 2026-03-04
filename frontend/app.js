@@ -33,8 +33,17 @@ const rawContent        = $('rawContent');
 const rawJson           = $('rawJson');
 
 // ── State ─────────────────────────────────────────────────────────────────────
-// CHANGE 5: array of files instead of single file
 let currentFiles = [];
+let selectedDim = '3D';   // (4) tracks 2D / 3D selection
+
+// ── Dimensionality selector ───────────────────────────────────────────────────
+function selectDim(dim) {
+  selectedDim = dim;
+  document.getElementById('pill3D').classList.toggle('selected', dim === '3D');
+  document.getElementById('pill2D').classList.toggle('selected', dim === '2D');
+  document.getElementById('pill3D').setAttribute('aria-pressed', String(dim === '3D'));
+  document.getElementById('pill2D').setAttribute('aria-pressed', String(dim === '2D'));
+}
 
 // ── Lattice Canvas Background ─────────────────────────────────────────────────
 (function initLattice() {
@@ -191,6 +200,7 @@ computeBtn.addEventListener('click', async () => {
     try {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('dimensionality', selectedDim);   // (4) send 2D or 3D
 
       const response = await fetch(`${CONFIG.API_BASE}/compute`, {
         method: 'POST',
