@@ -366,6 +366,9 @@ code {
 .file-remove-all:hover { color: var(--red); border-color: var(--red); }
 
 /* ── Error ── */
+/* ── Ensures HTML 'hidden' attribute always wins over CSS display rules ── */
+[hidden] { display: none !important; }
+
 .error-msg {
   display: flex;
   align-items: center;
@@ -601,13 +604,20 @@ code {
   border-top: 1px solid var(--border-light);
   background: var(--bg-panel);
 }
-.about-inner { max-width: 1000px; margin: 0 auto; }
-.about-title {
-  font-family: var(--font-heading); font-size: 1.75rem;
-  font-weight: 800; letter-spacing: -0.03em;
-  text-align: center; margin-bottom: 3rem;
+.about-inner { max-width: 1100px; margin: 0 auto; }
+
+/* CHANGE 3: section titles use DM Sans (body font) to match hero title */
+.about-title, .ack-title {
+  font-family: var(--font-body);
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--text);
+  margin-bottom: 3rem;
 }
-.steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+
+.steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 0; }
 .step-card {
   background: var(--bg-card); border: 1px solid var(--border-light);
   border-radius: var(--radius); padding: 1.5rem 1.25rem;
@@ -626,93 +636,81 @@ code {
 }
 .step-card p { font-size: 0.83rem; color: var(--text-2); line-height: 1.65; }
 
-/* ── CHANGE 1: Acknowledgements Section (white background) ── */
+/* CHANGE 2: Theory section below the step cards */
+.theory-section {
+  margin-top: 3.5rem;
+  border-top: 1px solid var(--border-light);
+  padding-top: 3rem;
+}
+.theory-title {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.01em;
+}
+.theory-body {
+  font-size: 0.9rem;
+  color: var(--text-2);
+  line-height: 1.8;
+  max-width: 820px;
+}
+.theory-body p { margin-bottom: 1rem; }
+.theory-body p:last-child { margin-bottom: 0; }
+.theory-body a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.theory-body strong { color: var(--text); font-weight: 500; }
+
+/* Figure support */
+.theory-figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+.theory-figure {
+  flex: 1 1 280px;
+  max-width: 480px;
+}
+.theory-figure img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  display: block;
+}
+.theory-figure figcaption {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-3);
+  margin-top: 0.6rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+/* ── CHANGE 1: Acknowledgements — same style as About section ── */
 .acknowledgements-section {
   position: relative;
   z-index: 1;
-  padding: 5rem 2rem;
-  border-top: 1px solid #e5e7eb;
-  background: #ffffff;
+  padding: 4rem 2rem;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-panel);
 }
-.ack-inner { max-width: 900px; margin: 0 auto; }
-.ack-title {
-  font-family: var(--font-heading);
-  font-size: 1.75rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  text-align: center;
-  color: #111827;
-  margin-bottom: 0.75rem;
-}
+.ack-inner { max-width: 820px; margin: 0 auto; }
+/* .ack-title shares styles with .about-title above */
 .ack-desc {
-  text-align: center;
-  font-size: 0.95rem;
-  color: #6b7280;
-  margin-bottom: 2.5rem;
+  font-size: 0.92rem;
+  color: var(--text-2);
+  line-height: 1.8;
+  text-align: left;
 }
-.ack-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  justify-content: center;
+.ack-desc a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 0.2s;
 }
-.ack-card {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: var(--radius);
-  padding: 1.5rem 1.75rem;
-  text-decoration: none;
-  color: inherit;
-  max-width: 480px;
-  width: 100%;
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-}
-.ack-card:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
-}
-.ack-logo-wrap {
-  flex-shrink: 0;
-  width: 72px;
-  height: 72px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.ack-logo {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-.ack-card-body { flex: 1; min-width: 0; }
-.ack-org-name {
-  font-family: var(--font-heading);
-  font-size: 1rem;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 0.35rem;
-  letter-spacing: -0.01em;
-}
-.ack-org-desc {
-  font-size: 0.83rem;
-  color: #6b7280;
-  line-height: 1.55;
-  margin-bottom: 0.6rem;
-}
-.ack-link-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  color: #059669;
-  text-transform: uppercase;
-}
+.ack-desc a:hover { opacity: 0.75; }
 
 /* ── Footer ── */
 .site-footer {
@@ -748,7 +746,8 @@ code {
   .lattice-grid { grid-template-columns: repeat(3, 1fr); }
   .steps-grid { grid-template-columns: 1fr 1fr; }
   .panel-header { flex-direction: column; align-items: flex-start; }
-  .ack-card { flex-direction: column; text-align: center; }
+  .theory-figures { flex-direction: column; }
+  .theory-figure { max-width: 100%; }
 }
 @media (max-width: 480px) {
   .hero-title { font-size: 1.75rem; }
