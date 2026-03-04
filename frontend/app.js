@@ -313,10 +313,36 @@ async function runHetero() {
 }
 
 // ── Render results ────────────────────────────────────────────────────────────
-function renderAllResults(results) {
-  multiResultsCont.innerHTML = '';
-  const allData = results.filter(r => r.ok).map(r => r.data);
+// Keeps a module-level reference to the last result set for downloads
+let _lastResults = [];
 
+function renderAllResults(results) {
+  _lastResults = results;
+  multiResultsCont.innerHTML = '';
+
+  // ── (4) Build raw JSON: hetero gets a trimmed object per pair ──────────────
+  const isHetero = results.some(r => r.mode === 'HETERO');
+  let rawPayload;
+  if (isHetero) {
+    rawPayload = results
+      .filter(r => r.ok)
+      .map(r => ({
+        file_2d:              r.file2D,
+        file_3d:              r.file3D,
+        chemical_formula_2d:  r.data.chemical_formula_2d   ?? r.data.chemical_formula ?? null,
+        reduced_formula_2d:   r.data.reduced_formula_2d    ?? r.data.reduced_formula  ?? null,
+        chemical_formula_3d:  r.data.chemical_formula_3d   ?? null,
+        reduced_formula_3d:   r.data.reduced_formula_3d    ?? null,
+        T2:                   r.data.T2,
+        T2_unit:              r.data.T2_unit,
+      }));
+  } else {
+    const allData = results.filter(r => r.ok).map(r => r.data);
+    rawPayload = allData.length === 1 ? allData[0] : allData;
+  }
+  rawJson.textContent = JSON.stringify(rawPayload, null, 2);
+
+  // ── Render cards ──────────────────────────────────────────────────────────
   results.forEach((result, idx) => {
     const card = document.createElement('div');
     card.className = 'result-card';
@@ -337,30 +363,48 @@ function renderAllResults(results) {
             ${result.error}
           </div>
         </div>`;
-    } else {
+
+    } else if (result.mode === 'HETERO') {
+      // ── (3) Hetero card: only 2D file, 3D file, and T₂ ──────────────────
       const d = result.data;
       const { t2_value, t2_unit } = formatT2(d.T2);
-      const lp = d.lattice_parameters ?? {};
-
-      const heteroBadges = result.mode === 'HETERO' ? `
-        <div style="display:flex;gap:0.4rem;margin-bottom:0.75rem;flex-wrap:wrap;">
-          <span style="font-family:var(--font-mono);font-size:0.7rem;padding:0.15em 0.55em;border-radius:4px;
-                background:var(--accent-dim);color:var(--accent);border:1px solid var(--border)">
-            2D: ${result.file2D}
-          </span>
-          <span style="font-family:var(--font-mono);font-size:0.7rem;padding:0.15em 0.55em;border-radius:4px;
-                background:var(--accent2-dim);color:var(--accent2);border:1px solid rgba(59,143,255,0.2)">
-            3D: ${result.file3D}
-          </span>
-        </div>` : '';
-
       card.innerHTML = `
         <div class="result-card-header">
           <span class="result-card-filename">${result.filename}</span>
           <span class="result-card-index">${idx+1} / ${results.length}</span>
         </div>
         <div class="result-card-body">
-          ${heteroBadges}
+          <div style="display:flex;gap:0.4rem;margin-bottom:0.75rem;flex-wrap:wrap;">
+            <span style="font-family:var(--font-mono);font-size:0.7rem;padding:0.15em 0.55em;border-radius:4px;
+                  background:var(--accent-dim);color:var(--accent);border:1px solid var(--border)">
+              2D: ${result.file2D}
+            </span>
+            <span style="font-family:var(--font-mono);font-size:0.7rem;padding:0.15em 0.55em;border-radius:4px;
+                  background:var(--accent2-dim);color:var(--accent2);border:1px solid rgba(59,143,255,0.2)">
+              3D: ${result.file3D}
+            </span>
+          </div>
+          <div class="t2-hero">
+            <div class="t2-label">Coherence Time</div>
+            <div class="t2-value-wrap">
+              <span class="t2-value">${t2_value}</span>
+              <span class="t2-unit">${t2_unit}</span>
+            </div>
+            <div class="t2-desc">Computed spin coherence time T₂</div>
+          </div>
+        </div>`;
+
+    } else {
+      // ── Standard 3D / 2D card ─────────────────────────────────────────────
+      const d = result.data;
+      const { t2_value, t2_unit } = formatT2(d.T2);
+      const lp = d.lattice_parameters ?? {};
+      card.innerHTML = `
+        <div class="result-card-header">
+          <span class="result-card-filename">${result.filename}</span>
+          <span class="result-card-index">${idx+1} / ${results.length}</span>
+        </div>
+        <div class="result-card-body">
           <div class="t2-hero">
             <div class="t2-label">Coherence Time</div>
             <div class="t2-value-wrap">
@@ -370,7 +414,7 @@ function renderAllResults(results) {
             <div class="t2-desc">Computed spin coherence time T₂</div>
           </div>
           <div class="info-grid">
-            <div class="info-card"><div class="info-card-label">Chemical Formula</div><div class="info-card-value formula-value">${d.chemical_formula ?? '—'}</div></div>
+            <div class="info-card"><div class="info-card-label">Chemical Formula</div><div class="info-card-value formula-value">${d.reduced_formula ?? '—'}</div></div>
             <div class="info-card"><div class="info-card-label">Number of Atoms</div><div class="info-card-value">${d.num_atoms ?? '—'}</div></div>
             <div class="info-card"><div class="info-card-label">Crystal System</div><div class="info-card-value">${d.crystal_system ?? '—'}</div></div>
             <div class="info-card"><div class="info-card-label">Space Group</div><div class="info-card-value">${d.space_group ?? '—'}</div></div>
@@ -392,9 +436,66 @@ function renderAllResults(results) {
     multiResultsCont.appendChild(card);
   });
 
-  rawJson.textContent = JSON.stringify(allData.length === 1 ? allData[0] : allData, null, 2);
   resultsPanel.hidden = false;
   resultsPanel.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// ── (2) Download handlers ─────────────────────────────────────────────────────
+$('downloadJson').addEventListener('click', () => {
+  const text = rawJson.textContent;
+  const blob = new Blob([text], { type: 'application/json' });
+  triggerDownload(blob, 't2_results.json');
+});
+
+$('downloadExcel').addEventListener('click', () => {
+  const isHetero = _lastResults.some(r => r.mode === 'HETERO');
+  let rows;
+
+  if (isHetero) {
+    rows = _lastResults.filter(r => r.ok).map(r => ({
+      'File 2D':             r.file2D,
+      'File 3D':             r.file3D,
+      'Chemical Formula 2D': r.data.chemical_formula_2d  ?? r.data.chemical_formula ?? '',
+      'Reduced Formula 2D':  r.data.reduced_formula_2d   ?? r.data.reduced_formula  ?? '',
+      'Chemical Formula 3D': r.data.chemical_formula_3d  ?? '',
+      'Reduced Formula 3D':  r.data.reduced_formula_3d   ?? '',
+      'T2 (ms)':             r.data.T2,
+    }));
+  } else {
+    rows = _lastResults.filter(r => r.ok).map(r => {
+      const d = r.data;
+      const lp = d.lattice_parameters ?? {};
+      return {
+        'File':             r.filename,
+        'Chemical Formula': d.chemical_formula ?? '',
+        'Reduced Formula':  d.reduced_formula  ?? '',
+        'Num Atoms':        d.num_atoms        ?? '',
+        'Crystal System':   d.crystal_system   ?? '',
+        'Space Group':      d.space_group      ?? '',
+        'a (Å)':            lp.a ?? '',
+        'b (Å)':            lp.b ?? '',
+        'c (Å)':            lp.c ?? '',
+        'α (°)':            lp.alpha  ?? '',
+        'β (°)':            lp.beta   ?? '',
+        'γ (°)':            lp.gamma  ?? '',
+        'T2 (ms)':          d.T2,
+      };
+    });
+  }
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'T2 Results');
+  XLSX.writeFile(wb, 't2_results.xlsx');
+});
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ── Reset ─────────────────────────────────────────────────────────────────────

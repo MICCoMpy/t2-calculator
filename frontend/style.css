@@ -110,7 +110,7 @@ code {
   align-items: center;
   gap: 6px;
 }
-.nav-link:hover, .nav-link.active { color: var(--text); background: var(--bg-card); }
+.nav-link:hover { color: var(--text); background: var(--bg-card); }
 .nav-github { border: 1px solid var(--border-light); margin-left: 0.5rem; }
 .nav-github:hover { border-color: var(--border); }
 
@@ -596,6 +596,37 @@ code {
 .raw-json::-webkit-scrollbar { width: 4px; }
 .raw-json::-webkit-scrollbar-track { background: transparent; }
 .raw-json::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.download-row {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+.download-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.download-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+.download-btn-excel:hover {
+  border-color: #1d7a45;
+  color: #2db86a;
+  background: rgba(29, 122, 69, 0.12);
+}
 
 /* ── About ── */
 .about-section {

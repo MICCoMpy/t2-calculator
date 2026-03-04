@@ -22,6 +22,7 @@
     };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -50,7 +51,7 @@
         </div>
       </div>
       <nav class="header-nav">
-        <a href="#" class="nav-link active">Compute</a>
+        <a href="#" class="nav-link">Compute</a>
         <a href="#about" class="nav-link">About</a>
         <a href="#acknowledgements" class="nav-link">Acknowledgements</a>
         <a href="https://galligroup.uchicago.edu" target="_blank" class="nav-link nav-github">Galli Group</a>
@@ -287,6 +288,24 @@
           </button>
           <div class="raw-content" id="rawContent" hidden>
             <pre class="raw-json" id="rawJson">{ }</pre>
+            <div class="download-row">
+              <button class="download-btn" id="downloadJson">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download JSON
+              </button>
+              <button class="download-btn download-btn-excel" id="downloadExcel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download Excel
+              </button>
+            </div>
           </div>
         </div>
       </section>
