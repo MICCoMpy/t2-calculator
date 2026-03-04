@@ -203,7 +203,7 @@ def Get_NuclearSpinDensity(natural_abundance_percent, structure, atom_type):
 def Compute_T2( struc: Structure, 
                 alpha_2D=2.84, 
                 prefactor=1.0, 
-                eta_3D=2,
+                eta_3D=1.5,
                 ) -> float:
     """
     Calculate the T2 time for the structure, considering all atom types.
