@@ -9,6 +9,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <!-- MathJax for LaTeX rendering (changes 3 & 4) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        tags: 'none',
+      },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] },
+      startup: { typeset: true },
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
 </head>
 <body>
 
@@ -69,7 +82,7 @@
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <span class="stat-value">python</span>
+          <span class="stat-value">Python</span>
           <span class="stat-label">Structure Parser</span>
         </div>
       </div>
@@ -214,58 +227,126 @@
         </div>
       </div>
 
-      <!-- Theory section: add your text and figures here -->
+      <!-- Theory section -->
       <div class="theory-section">
         <h3 class="theory-title">Theory</h3>
         <div class="theory-body">
-          <p>
-            The <strong>spin coherence time T₂</strong> describes the "quantum lifetime" of a qubit spin state in the presence of environmental noise. Interactions between the qubit spin and its environment can be described by the following many-body Hamiltonian:
-            
-            Methods to rapidly predict T₂ have been developed in Refs. [1, 2]. In developing these methods, several assumptions are made:
-            <ul>
-              <li>The dominant decoherence mechanism is magnetic dipolar interactions between the qubit spin and nuclear isotopes present in the material. As a result, <strong>T₂ is largely a property of the host material</strong>, rather than the spin defect.</li>
-              <li>The secular approximation is invoked, which is permitted when S<sub>z</sub> is a good quantum number. This is generally a safe approximation under high magnetic fields.</li>
-              <li>The stretch exponent, ADD ETA, is set to 2 for 3D systems [1] and 2.84 for 2D systems [2].</li>
-            </ul>
-
-            As a result, T₂ is estimated from the crystal structure of a material, following the models developed in <a href="https://doi.org/10.1073/pnas.2121808119" target="_blank">Kanai, et al., PNAS, 119, e2121808119 (2022)</a> for 3D materials and <a href="https://doi.org/10.1038/s41699-025-00623-8" target="_blank">Toriyama, et al., npj 2D Mater. Appl., 9, 108 (2025)</a> for 2D materials.
-
 
           <p>
-            This calculator uses the semi-empirical model of
-            <a href="https://doi.org/10.1073/pnas.2121808119" target="_blank">Kanai et al.</a>
-            to estimate T₂ from the crystal structure alone. 
-
-            For each naturally abundant isotope of
-            every element in the structure, the nuclear spin density <em>n</em> is computed from
-            the lattice volume and natural abundance. The single-element coherence time is then:
+            The <strong>spin coherence time T₂</strong> describes the "quantum lifetime" of a qubit
+            spin state in the presence of environmental noise. Interactions between the qubit spin
+            and its environment can be described by the following many-body Hamiltonian:
           </p>
-          <p>
-            <code>T₂ ∝ |g|⁻¹·⁶⁴ · I⁻¹·¹ · n⁻¹</code>
-          </p>
-          <p>
-            where <em>g</em> is the nuclear g-factor and <em>I</em> the nuclear spin quantum number.
-            Contributions from all isotopes are combined using the Kanai power-law formula to yield
-            the total T₂ of the compound.
 
+          <div class="theory-eq">
+            \[
+              \hat{H} = \hat{H}_{\mathrm{qubit}} + \hat{H}_{\mathrm{bath}}
+                      + \hat{H}_{\mathrm{qubit\text{-}bath}}
+            \]
+          </div>
+
+          <p>
+            Methods to rapidly predict T₂ have been developed in Refs.&nbsp;<a href="#ref1" class="cite-link">[1]</a><a href="#ref2" class="cite-link">[2]</a>.
+            In developing these methods, several assumptions are made:
           </p>
+
+          <ul>
+            <li>
+              The dominant decoherence mechanism is magnetic dipolar interactions between the qubit
+              spin and nuclear isotopes present in the material. As a result,
+              <strong>T₂ is largely a property of the host material</strong>, rather than the spin
+              defect itself.
+            </li>
+            <li>
+              The secular approximation is invoked, which is permitted when
+              \(\hat{S}_z\) is a good quantum number. This is generally a safe approximation
+              under high magnetic fields.
+            </li>
+            <li>
+              The stretch exponent \(\eta\) is set to \(\eta = 2\) for 3D systems&nbsp;<a href="#ref1" class="cite-link">[1]</a>
+              and \(\eta = 2.84\) for 2D systems&nbsp;<a href="#ref2" class="cite-link">[2]</a>.
+            </li>
+          </ul>
+
+          <p>
+            For each naturally abundant isotope of every element in the structure, the nuclear spin
+            density \(n\) is computed from the lattice volume and natural abundance. The
+            single-element coherence time scales as&nbsp;<a href="#ref1" class="cite-link">[1]</a>:
+          </p>
+
+          <div class="theory-eq">
+            \[
+              T_2^{(\alpha)} \propto
+                \left|g_\alpha\right|^{-1.64}
+                \, I_\alpha^{-1.1}
+                \, n_\alpha^{-1}
+            \]
+          </div>
+
+          <p>
+            where \(g_\alpha\) is the nuclear g-factor, \(I_\alpha\) the nuclear spin quantum
+            number, and \(n_\alpha\) the nuclear spin density of isotope \(\alpha\).
+            Contributions from all isotopes are combined using the Kanai power-law
+            formula&nbsp;<a href="#ref1" class="cite-link">[1]</a>:
+          </p>
+
+          <div class="theory-eq">
+            \[
+              \frac{1}{T_2^{3/\eta}} =
+                \sum_\alpha \frac{1}{\left(T_2^{(\alpha)}\right)^{3/\eta}}
+            \]
+          </div>
+
+          <p>
+            For 2D materials, a geometric correction factor is applied to account for the reduced
+            dimensionality of the nuclear spin bath&nbsp;<a href="#ref2" class="cite-link">[2]</a>.
+            The material thickness \(d\) is estimated from the van der Waals radii of the outermost
+            atoms, and the 2D nuclear spin density is defined as:
+          </p>
+
+          <div class="theory-eq">
+            \[
+              n^{\mathrm{2D}}_\alpha = n^{\mathrm{3D}}_\alpha \cdot d
+            \]
+          </div>
 
           <!--
-            To add figures, use the structure below.
-            Place your image files in the frontend/ folder alongside index.html,
-            then set the src attribute to the filename, e.g. src="fig1.png".
+            ── FIGURES ────────────────────────────────────────────────
+            To add figures, uncomment and fill in the block below.
+            Place image files in the frontend/ folder, then set src="your-image.png".
 
             <div class="theory-figures">
               <figure class="theory-figure">
-                <img src="your-figure-1.png" alt="Description of figure 1" />
-                <figcaption>Figure 1. Caption text goes here.</figcaption>
+                <img src="fig1.png" alt="Description" />
+                <figcaption>Figure 1. Caption text here.</figcaption>
               </figure>
               <figure class="theory-figure">
-                <img src="your-figure-2.png" alt="Description of figure 2" />
-                <figcaption>Figure 2. Caption text goes here.</figcaption>
+                <img src="fig2.png" alt="Description" />
+                <figcaption>Figure 2. Caption text here.</figcaption>
               </figure>
             </div>
           -->
+
+          <!-- Change 4: References -->
+          <div class="theory-references">
+            <h4 class="theory-references-title">References</h4>
+            <ol>
+              <li id="ref1">
+                S. Kanai, F. J. Heremans, H. Seo, G. Wolfowicz, C. P. Anderson, S. E. Sullivan,
+                M. Onizhuk, G. Galli, D. D. Awschalom, H. Ohno,
+                "Generalized scaling of spin qubit coherence in over 12,000 host materials,"
+                <em>Proc. Natl. Acad. Sci.</em> <strong>119</strong>, e2121808119 (2022).
+                <a href="https://doi.org/10.1073/pnas.2121808119" target="_blank">DOI: 10.1073/pnas.2121808119</a>
+              </li>
+              <li id="ref2">
+                M. T. Toriyama et al.,
+                "Predicting spin qubit coherence in two-dimensional host materials,"
+                <em>npj 2D Mater. Appl.</em> <strong>9</strong>, 108 (2025).
+                <a href="https://doi.org/10.1038/s41699-025-00623-8" target="_blank">DOI: 10.1038/s41699-025-00623-8</a>
+              </li>
+            </ol>
+          </div>
+
         </div>
       </div>
 
