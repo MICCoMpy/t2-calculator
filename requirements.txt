@@ -1,0 +1,18 @@
+# T₂ Calculator Backend — Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Web framework
+fastapi==0.115.5
+uvicorn[standard]==0.32.0
+
+# Crystal structure parsing
+pymatgen==2024.11.13
+
+# Data validation (FastAPI dependency)
+pydantic==2.10.1
+
+# For production deployment (optional but recommended)
+gunicorn==23.0.0
+
+# Type checking helpers (optional)
+python-multipart==0.0.17
