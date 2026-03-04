@@ -239,6 +239,7 @@
             \[
               \hat{H} = \hat{H}_{\mathrm{qubit}} + \hat{H}_{\mathrm{bath}}
                       + \hat{H}_{\mathrm{qubit\text{-}bath}}
+                      = \mathbf{SDS} + \mathbf{B} \gamma_e \mathbf{S} + \sum_i \mathbf{S} \mathbf{A}_i \mathbf{I}_i} + \mathbf{B} \gamma_i \mathbf{I}_i + \sum_{i>j} \mathbf{I}_i \mathbf{J}_{ij} \mathbf{I}_j
             \]
           </div>
           <p>
@@ -247,7 +248,7 @@
           </p>
           <div class="theory-eq">
             \[
-              L(t) = \frac{\rho_{\updownarrows}(t)}{\rho_{\updownarrows}(0)}
+              L(t) = \frac{ \langle 1 | \rho(t) | 0 \rangle}{\langle 1 | \rho(0) | 0 \rangle }
             \]
           </div>
           <p>
@@ -260,6 +261,7 @@
           </div>
 
           <p>
+            In principle, the
             Methods to rapidly predict T₂ have been developed in Refs.&nbsp;<a href="#ref1" class="cite-link">[1]</a><a href="#ref2" class="cite-link">[2]</a>.
             In developing these methods, several assumptions are made:
           </p>
