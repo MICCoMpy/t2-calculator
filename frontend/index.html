@@ -237,14 +237,12 @@
           </p>
           <div class="theory-eq">
             \[
-              \hat{H} = \hat{H}_{\mathrm{qubit}} + \hat{H}_{\mathrm{bath}}
-                      + \hat{H}_{\mathrm{qubit\text{-}bath}}
-                      = \mathbf{SDS} + \mathbf{B} \gamma_e \mathbf{S} + \sum_i \mathbf{S} \mathbf{A}_i \mathbf{I}_i + \mathbf{B} \gamma_i \mathbf{I}_i + \sum_{i>j} \mathbf{I}_i \mathbf{J}_{ij} \mathbf{I}_j
+              \hat{H} = \mathbf{SDS} + \mathbf{B} \gamma_e \mathbf{S} + \sum_i \mathbf{S} \mathbf{A}_i \mathbf{I}_i + \mathbf{B} \gamma_i \mathbf{I}_i + \sum_{i>j} \mathbf{I}_i \mathbf{J}_{ij} \mathbf{I}_j
             \]
           </div>
           <p>
-            where \(\hat{S}_z\) is ...
-            From \(\hat{H}\), the coherence function \(L(t)\) of the qubit can be computed
+            where \(\mathbf{SDS}\) is the zero-field splitting term, \(\mathbf{B} \gamma_e \mathbf{S}\) and \(\mathbf{B} \gamma_i \mathbf{I}_i\) are the Zeeman splitting terms, \(\mathbf{S} \mathbf{A}_i \mathbf{I}_i\) is the hyperfine term, and \(\mathbf{I}_i \mathbf{J}_{ij} \mathbf{I}_j\) is the nuclear dipolar interaction term.
+            From the Hamiltonian \(\hat{H}\), the coherence function \(L(t)\) of the qubit can be computed
           </p>
           <div class="theory-eq">
             \[
@@ -252,7 +250,7 @@
             \]
           </div>
           <p>
-            Then, T₂ can be computed by fitting \(L(t)\) to a stretched exponential form:
+            from which T₂ can be computed by fitting \(L(t)\) to a stretched exponential form:
           </p>
           <div class="theory-eq">
             \[
@@ -261,8 +259,9 @@
           </div>
 
           <p>
-            In principle, the
-            Methods to rapidly predict T₂ have been developed in Refs.&nbsp;<a href="#ref1" class="cite-link">[1]</a><a href="#ref2" class="cite-link">[2]</a>.
+            In principle, \(L(t)\) can be solved using computational methods, such as the cluster correlation expansion (CCE) approach <a href="#ref1" class="cite-link-nohover">[1]</a><a href="#ref2" class="cite-link-nohover">[2]</a>.
+
+            Methods to rapidly predict T₂ have been developed in Refs.&nbsp;<a href="#ref3" class="cite-link-nohover">[3]</a><a href="#ref4" class="cite-link-nohover">[4]</a>.
             In developing these methods, several assumptions are made:
           </p>
           <ul>
@@ -273,15 +272,15 @@
               The secular approximation is invoked, which is permitted when \(\hat{S}_z\) is a good quantum number. This is generally a safe approximation in the high magnetic field limit.
             </li>
             <li>
-              The stretch exponent \(\eta\) is set to \(\eta = 2\) for 3D systems&nbsp;<a href="#ref1" class="cite-link">[1]</a>
-              and \(\eta = 2.84\) for 2D systems&nbsp;<a href="#ref2" class="cite-link">[2]</a>.
+              The stretch exponent \(\eta\) is set to \(\eta = 2\) for 3D systems&nbsp;<a href="#ref3" class="cite-link">[3]</a>
+              and \(\eta = 2.84\) for 2D systems&nbsp;<a href="#ref4" class="cite-link">[4]</a>.
             </li>
           </ul>
 
           <p>
             For each naturally abundant isotope of every element in the structure, the nuclear spin
             density \(n\) is computed from the lattice volume and natural abundance. The
-            single-element coherence time scales as&nbsp;<a href="#ref1" class="cite-link">[1]</a>:
+            single-element coherence time scales as&nbsp;<a href="#ref3" class="cite-link">[3]</a>:
           </p>
 
           <div class="theory-eq">
@@ -297,7 +296,7 @@
             where \(g_\alpha\) is the nuclear g-factor, \(I_\alpha\) the nuclear spin quantum
             number, and \(n_\alpha\) the nuclear spin density of isotope \(\alpha\).
             Contributions from all isotopes are combined using the Kanai power-law
-            formula&nbsp;<a href="#ref1" class="cite-link">[1]</a>:
+            formula&nbsp;<a href="#ref3" class="cite-link">[3]</a>:
           </p>
 
           <div class="theory-eq">
@@ -309,7 +308,7 @@
 
           <p>
             For 2D materials, a geometric correction factor is applied to account for the reduced
-            dimensionality of the nuclear spin bath&nbsp;<a href="#ref2" class="cite-link">[2]</a>.
+            dimensionality of the nuclear spin bath&nbsp;<a href="#ref4" class="cite-link">[4]</a>.
             The material thickness \(d\) is estimated from the van der Waals radii of the outermost
             atoms, and the 2D nuclear spin density is defined as:
           </p>
@@ -342,12 +341,24 @@
             <h4 class="theory-references-title">References</h4>
             <ol>
               <li id="ref1">
+                W. Yang, W. L. Ma and R. B. Liu,
+                "Quantum many-body theory for electron spin decoherence in nanoscale nuclear spin baths,"
+                <em>Rep. Prog. Phys.</em> 80, 016001 (2017).
+                <a href="https://doi.org/10.1073/pnas.2121808119" target="_blank">DOI: 10.1073/pnas.2121808119</a>
+              </li>
+              <li id="ref2">
+                M. Onizhuk and G. Galli,
+                "<em>Colloquium</em>: Decoherence of solid-state spin qubits: A computational perspective,"
+                <em>Rev. Mod. Phys.</em> 97, 021001 (2025).
+                <a href="https://doi.org/10.1073/pnas.2121808119" target="_blank">DOI: 10.1073/pnas.2121808119</a>
+              </li>
+              <li id="ref3">
                 S. Kanai, F. J. Heremans, H. Seo, G. Wolfowicz, C. P. Anderson, S. E. Sullivan, M. Onizhuk, G. Galli, D. D. Awschalom, and H. Ohno,
                 "Generalized scaling of spin qubit coherence in over 12,000 host materials,"
                 <em>Proc. Natl. Acad. Sci.</em> 119, e2121808119 (2022).
                 <a href="https://doi.org/10.1073/pnas.2121808119" target="_blank">DOI: 10.1073/pnas.2121808119</a>
               </li>
-              <li id="ref2">
+              <li id="ref4">
                 M. Y. Toriyama, J. Zhan, S. Kanai, and G. Galli,
                 "Strategies to search for two-dimensional materials with long spin qubit coherence time,"
                 <em>npj 2D Mater. Appl.</em> 9, 108 (2025).
