@@ -233,15 +233,29 @@
         <div class="theory-body">
 
           <p>
-            The <strong>spin coherence time T₂</strong> describes the "quantum lifetime" of a qubit
-            spin state in the presence of environmental noise. Interactions between the qubit spin
-            and its environment can be described by the following many-body Hamiltonian:
+            The <strong>spin coherence time T₂</strong> describes the "quantum lifetime" of a qubit spin state in the presence of environmental noise. Interactions between the qubit spin and its environment can be described by the following many-body Hamiltonian:
           </p>
-
           <div class="theory-eq">
             \[
               \hat{H} = \hat{H}_{\mathrm{qubit}} + \hat{H}_{\mathrm{bath}}
                       + \hat{H}_{\mathrm{qubit\text{-}bath}}
+            \]
+          </div>
+          <p>
+            where \(\hat{S}_z\) is ...
+            From \(\hat{H}\), the coherence function \(L(t)\) of the qubit can be computed
+          </p>
+          <div class="theory-eq">
+            \[
+              L(t) = \frac{\rho_{\updownarrows}(t)}{\rho_{\updownarrows}(0)}
+            \]
+          </div>
+          <p>
+            Then, T₂ can be computed by fitting \(L(t)\) to a stretched exponential form:
+          </p>
+          <div class="theory-eq">
+            \[
+              L(t) = \exp\left(\left( \frac{t}{T_2} \right)^{\eta}\right)
             \]
           </div>
 
@@ -249,18 +263,12 @@
             Methods to rapidly predict T₂ have been developed in Refs.&nbsp;<a href="#ref1" class="cite-link">[1]</a><a href="#ref2" class="cite-link">[2]</a>.
             In developing these methods, several assumptions are made:
           </p>
-
           <ul>
             <li>
-              The dominant decoherence mechanism is magnetic dipolar interactions between the qubit
-              spin and nuclear isotopes present in the material. As a result,
-              <strong>T₂ is largely a property of the host material</strong>, rather than the spin
-              defect itself.
+              The dominant decoherence mechanism is magnetic dipolar interactions between the qubit spin and nuclear isotopes present in the material. As a result, <strong>T₂ is largely a property of the host material</strong>, rather than the spin defect itself.
             </li>
             <li>
-              The secular approximation is invoked, which is permitted when
-              \(\hat{S}_z\) is a good quantum number. This is generally a safe approximation
-              under high magnetic fields.
+              The secular approximation is invoked, which is permitted when \(\hat{S}_z\) is a good quantum number. This is generally a safe approximation in the high magnetic field limit.
             </li>
             <li>
               The stretch exponent \(\eta\) is set to \(\eta = 2\) for 3D systems&nbsp;<a href="#ref1" class="cite-link">[1]</a>
@@ -332,16 +340,15 @@
             <h4 class="theory-references-title">References</h4>
             <ol>
               <li id="ref1">
-                S. Kanai, F. J. Heremans, H. Seo, G. Wolfowicz, C. P. Anderson, S. E. Sullivan,
-                M. Onizhuk, G. Galli, D. D. Awschalom, H. Ohno,
+                S. Kanai, F. J. Heremans, H. Seo, G. Wolfowicz, C. P. Anderson, S. E. Sullivan, M. Onizhuk, G. Galli, D. D. Awschalom, and H. Ohno,
                 "Generalized scaling of spin qubit coherence in over 12,000 host materials,"
-                <em>Proc. Natl. Acad. Sci.</em> <strong>119</strong>, e2121808119 (2022).
+                <em>Proc. Natl. Acad. Sci.</em> 119, e2121808119 (2022).
                 <a href="https://doi.org/10.1073/pnas.2121808119" target="_blank">DOI: 10.1073/pnas.2121808119</a>
               </li>
               <li id="ref2">
-                M. T. Toriyama et al.,
-                "Predicting spin qubit coherence in two-dimensional host materials,"
-                <em>npj 2D Mater. Appl.</em> <strong>9</strong>, 108 (2025).
+                M. Y. Toriyama, J. Zhan, S. Kanai, and G. Galli,
+                "Strategies to search for two-dimensional materials with long spin qubit coherence time,"
+                <em>npj 2D Mater. Appl.</em> 9, 108 (2025).
                 <a href="https://doi.org/10.1038/s41699-025-00623-8" target="_blank">DOI: 10.1038/s41699-025-00623-8</a>
               </li>
             </ol>
