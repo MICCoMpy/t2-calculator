@@ -318,6 +318,30 @@ def Compute_T2_3D(struc: Structure) -> float:
 
 
 
+# ====================================================================
+# Functions specifically for heterostructures
+# ====================================================================
+
+def Compute_T2_Heterostructure(struc_2d: Structure, struc_3d: Structure) -> float:
+    """
+    Calculate the T2 time for a heterostructure.
+
+    Parameters
+    ----------
+    struc_2d, struc_3d : pymatgen.core.Structure
+        Fully parsed crystal structure.
+
+    Returns
+    -------
+    float
+        T2 value in **ms**.
+    """
+    t2_2d = Compute_T2_2D(struc_2d)
+    t2_3d = Compute_T2_3D(struc_3d)
+    t2_HS = ( t2_2d**(-1.06) + t2_3d**(-1.5) / 2 )**(-1 / 1.35)
+    return t2_HS
+
+
 
 # ── Utility Helpers ───────────────────────────────────────────────────────────
 def validate_upload(file: UploadFile, content: bytes) -> None:
@@ -536,7 +560,7 @@ async def compute_heterostructure(
     # The function receives both parsed pymatgen Structure objects and should
     # return a T₂ value in milliseconds (float).
     # ─────────────────────────────────────────────────────────────────────────
-    T2_value = Compute_T2_2D(structure_2d)   # placeholder — replace when ready
+    T2_value = Compute_T2_Heterostructure(structure_2d, structure_3d)   # placeholder — replace when ready
 
     response = ComputeResponse(
         chemical_formula   = structure_2d.composition.formula,
