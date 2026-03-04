@@ -268,14 +268,10 @@
             <li>
               The secular approximation is invoked, which is permitted when \(\hat{S}_z\) is a good quantum number. This is generally a safe approximation in the high magnetic field limit.
             </li>
-            <li>
-              The stretch exponent \(\eta\) is set to \(\eta = 2\) for 3D systems&nbsp;<a href="#ref3" class="cite-link">[3]</a>
-              and \(\eta = 2.84\) for 2D systems&nbsp;<a href="#ref4" class="cite-link">[4]</a>.
-            </li>
           </ul>
 
           <p>
-            For each naturally abundant isotope \(\alpha\) of every element in the structure, the nuclear g-factor \(g_\alpha\), nuclear spin quantum number \(I_\alpha\), and natural abundance are read from the <a href="https://easyspin.org/easyspin/documentation/isotopetable.html" target="_blank">EasySpin database</a>. The nuclear spin density \(n_\alpha\) is computed from the lattice volume and natural abundance. The single-element coherence time scales as&nbsp;<a href="#ref3" class="cite-link">[3]</a>:
+            For each naturally abundant isotope \(i\) of every element in the structure, the nuclear g-factor \(g_i\), nuclear spin quantum number \(I_i\), and natural abundance are read from the <a href="https://easyspin.org/easyspin/documentation/isotopetable.html" target="_blank">EasySpin database</a>. The nuclear spin density \(n_i\) is computed from the lattice volume and natural abundance. The single-element coherence time scales as&nbsp;<a href="#ref3" class="cite-link">[3]</a>:
           </p>
           <div class="theory-eq">
             \[
@@ -287,11 +283,29 @@
           </p>
           <div class="theory-eq">
             \[
-              T_{2,\textrm{3D}}^{-2} = \sum_i \left(T_{2,\textrm{3D},i}^{(\alpha)}\right)^{-2}
+              T_{2,\textrm{3D}}^{-\eta} = \sum_i \left(T_{2,\textrm{3D},i}\right)^{-\eta}
             \]
           </div>
           <p>
-            For 2D materials, a dimensional correction factor is applied&nbsp;<a href="#ref4" class="cite-link">[4]</a>.
+            For 2D materials, a dimensional correction factor is applied&nbsp;<a href="#ref4" class="cite-link">[4]</a>:
+          </p>
+          <div class="theory-eq">
+            \[
+              T_{2,\textrm{2D},i} = C_{\alpha_\mathrm{2D}} n_i^{(2-\alpha_\mathrm{2D})/3} w^{-\alpha_\mathrm{2D}/3} T_{2,\textrm{3D},i} \\
+              T_{2,\textrm{2D}}^{-3/\alpha_\mathrm{2D}} = \sum_i T_{2,\textrm{2D},i}^{-3/\alpha_\mathrm{2D}}
+            \]
+          </div>
+          <p>
+            which, after fitting, simplifies to
+          </p>
+          <div class="theory-eq">
+            \[
+              T_{2,\textrm{2D},i} = 0.94 n_i^{-0.28} w^{-0.95} T_{2,\textrm{3D},i} \\
+              T_{2,\textrm{2D}}^{-1.06} = \sum_i T_{2,\textrm{2D},i}^{-1.06}}
+            \]
+          </div>
+          
+          <p>
             The thickness \(w\) is estimated using the van der Waals radii of the outermost atoms, and the 2D nuclear spin density is defined as:
           </p>
 
