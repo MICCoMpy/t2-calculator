@@ -607,7 +607,7 @@ code {
 .about-inner { max-width: 1100px; margin: 0 auto; }
 
 /* CHANGE 3: section titles use DM Sans (body font) to match hero title */
-.about-title, .ack-title {
+.about-title, .ack-title .theory-title{
   font-family: var(--font-body);
   font-size: clamp(1.5rem, 3vw, 1.9rem);
   font-weight: 500;
