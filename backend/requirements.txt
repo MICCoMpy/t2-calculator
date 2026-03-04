@@ -16,3 +16,9 @@ gunicorn==23.0.0
 
 # Type checking helpers (optional)
 python-multipart==0.0.17
+
+numpy
+scipy
+pandas
+
+

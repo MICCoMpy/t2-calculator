@@ -9,7 +9,7 @@ const CONFIG = {
   // For local development: http://localhost:8000
   API_BASE: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8000'
-    : 'https://your-backend.onrender.com',  // ← Replace with your deployed backend URL
+    : 'https://t2-calculator.onrender.com',  // ← Replace with your deployed backend URL
   MAX_FILE_SIZE_MB: 10,
   ALLOWED_EXT: '.cif',
 };
