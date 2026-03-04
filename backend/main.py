@@ -14,6 +14,9 @@ import tempfile
 import logging
 from pathlib import Path
 
+import numpy as np
+import scipy.special as special
+
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -50,6 +53,7 @@ ALLOWED_ORIGINS = [
     "http://localhost:5500",
     "http://127.0.0.1:8080",
     "http://localhost:8080",
+    "https://mathtoriyama.github.io/t2-calculator/",
     # Add your GitHub Pages URL here:
     # "https://your-username.github.io",
 ]
@@ -131,6 +135,163 @@ def compute_T2(structure: Structure) -> float:
 
     # Temporary stub: returns None so the frontend shows "—"
     return None
+
+
+
+
+def gamma_custom(x):
+    if x >= 0:
+        return special.gamma(x)
+    elif x < 0:
+        return 1./x * gamma_custom(x+1)
+
+def H(p):
+    return p * (-gamma_custom(-p/2) / 2**(p/2 + 1))
+
+def Area(D):
+    return np.pi**(D/2) / special.gamma(D/2 + 1)
+
+
+
+# Calculate the T2 value of an element
+def T2_Kanai_Element(n_3D, g, I):
+    #T2_Eq2 = 1.5e18 * np.abs(g)**(-1.6) * I**(-1.1) * (n_3D)**(-1.0)    
+    T2_Eq2 = 1.46e18 * np.abs(g)**(-1.64) * I**(-1.1) * (n_3D)**(-1.0)    
+    return T2_Eq2
+
+
+# Calculate T2 of a compound (input: list of T2 of each element)
+def T2_Kanai(T2_list: list, exp: float):
+    T2_values = np.array(T2_list)
+    T2_combined = np.sum( T2_values**(-exp) )**(-1./exp)
+    return T2_combined #**(2./3)
+
+
+# Calculate the thickness of the 2D/monolayer material
+def Get_Thickness(structure):
+
+    # Get van der Waals radii
+    vdW_radii = {}
+    #for line in open("/mnt/c/Users/Michael/OneDrive - The University of Chicago/Documents/2D_Host_Substrates/Manuscript/Zenodo_Entry/v1.0.1/Scripts/Tools/vdW_Radii.csv").readlines():
+    for line in open("/home/toriyama/Utils/Radii/vdW_Radii.csv").readlines():
+        line = line.split(",")
+        vdW_radii[line[0]] = float(line[1])
+
+    # Get positions and vdW radii of all atoms in the structure
+    positions = []
+    vdW_radii_structure = []
+    for atom in structure.sites:
+        positions.append(atom.coords)
+        vdW_radii_structure.append(vdW_radii[atom.specie.symbol])
+    positions = np.asarray(positions)
+    vdW_radii_structure = np.asarray(vdW_radii_structure)
+
+    # Get maximum z-distance between atom centers
+    max_z_dist = np.max(positions[:,2]) - np.min(positions[:,2])
+
+    # If the material is 1-atom thick (i.e. a true 2D material), then define "thickness" as the largest vdW diameter
+    if max_z_dist == 0.0:
+        print("True 2D")
+        return 2*np.max(vdW_radii_structure) * 1e-8
+
+    # Add van der Waals radii to max z distance for 3D thickness, otherwise return z-distance
+    thickness = max_z_dist + vdW_radii_structure[np.argmax(positions[:,2])] + vdW_radii_structure[np.argmin(positions[:,2])]
+    
+    return thickness * 1e-8
+
+
+def Get_Volume(structure):
+
+    # Calculate volume of the 2D material
+    lat_vec_a = structure.lattice.matrix[0]
+    lat_vec_b = structure.lattice.matrix[1]
+    area = np.linalg.norm(np.cross(lat_vec_a, lat_vec_b)) * 1e-16
+    thickness = Get_Thickness(structure)
+    volume = area * thickness
+
+    return volume
+
+
+# Calculate nuclear spin density of an element, from its natural abundance and the structure
+def Get_NuclearSpinDensity(natural_abundance_percent, structure, atom_type):
+    
+    # Calculate volume of the 2D material
+    volume = Get_Volume(structure)
+
+    # Count atoms of specified type in structure
+    count = 0
+    for atom in structure.sites:
+        if atom.specie.symbol == atom_type:
+            count += 1
+
+    # Get number density of element in the structure
+    number_density = count / volume
+
+    return number_density * (natural_abundance_percent/100)
+
+
+def Compute_T2( struc: Structure, 
+                alpha_2D=2.84, 
+                prefactor=1.0, 
+                eta_3D=2,
+                ) -> float:
+    """
+    Calculate the T2 time for the structure, considering all atom types.
+
+    Parameters
+    ----------
+    struc : pymatgen.core.Structure
+        Fully parsed crystal structure.
+
+    Returns
+    -------
+    float
+        T2 value in **ms**.
+    """
+    T2_elems = []
+
+    # Get elements (not species, which can have charge)
+    elements = [str(specie) for specie in struc.composition.element_composition]
+
+    for element in set(elements):
+        df_elem = all_spins[all_spins["symbol"] == element]
+        for i, row in df_elem.iterrows():
+
+            # Get relevant isotope data
+            abun_perc = row["conc"]
+            n_3D = Get_NuclearSpinDensity(abun_perc, struc, element)
+            g = row["g"]
+            I = row["spin"]
+
+            # Check whether any are zero
+            if np.any(np.array([n_3D,g,I]) == 0.0): continue
+
+            # Calculate T2 of element
+            T2_elem_3D = T2_Kanai_Element(n_3D, g, I)
+
+            factor_3D = ( Area(3) * n_3D * H(p=eta_3D*2./3) )**(1./eta_3D)
+            factor_2D = ( Area(2) * n_3D * Get_Thickness(struc) * H(p=2./alpha_2D) )**(alpha_2D/3)
+            T2_elem_2D = T2_elem_3D * factor_3D / factor_2D * prefactor
+
+            T2_elems.append(T2_elem_2D)
+
+    # Calculate T2 of compound
+    T2_comp = T2_Kanai(T2_elems, exp=3./alpha_2D)
+    T2_comp *= 1000  # Unit conversion, from s to ms
+
+    return T2_comp
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # ── Utility Helpers ───────────────────────────────────────────────────────────
@@ -249,7 +410,7 @@ async def compute(file: UploadFile = File(..., description="CIF structure file")
         density = 0.0
 
     # ── Compute T₂ ────────────────────────────────────────────────────────────
-    T2_value = compute_T2(structure)
+    T2_value = Compute_T2(structure)
 
     # ── Build response ────────────────────────────────────────────────────────
     response = ComputeResponse(
@@ -271,7 +432,7 @@ async def compute(file: UploadFile = File(..., description="CIF structure file")
         space_group_number  = space_group_num,
         density             = round(density, 4),
         T2                  = T2_value,
-        T2_unit             = "s",
+        T2_unit             = "ms",
     )
 
     logger.info(
