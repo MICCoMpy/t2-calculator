@@ -276,6 +276,26 @@
         <!-- CHANGE 5: dynamic multi-result cards injected here by JS -->
         <div id="multiResultsContainer"></div>
 
+        <!-- Download buttons — always visible once results are shown -->
+        <div class="download-row" id="downloadRow">
+          <button class="download-btn" id="downloadJson">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download JSON
+          </button>
+          <button class="download-btn download-btn-excel" id="downloadExcel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download Excel
+          </button>
+        </div>
+
         <div class="raw-section">
           <button class="raw-toggle" id="rawToggle" aria-expanded="false">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -288,24 +308,6 @@
           </button>
           <div class="raw-content" id="rawContent" hidden>
             <pre class="raw-json" id="rawJson">{ }</pre>
-            <div class="download-row">
-              <button class="download-btn" id="downloadJson">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Download JSON
-              </button>
-              <button class="download-btn download-btn-excel" id="downloadExcel">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Download Excel
-              </button>
-            </div>
           </div>
         </div>
       </section>

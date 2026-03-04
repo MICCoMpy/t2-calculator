@@ -225,8 +225,8 @@ computeBtn.addEventListener('click', async () => {
   multiResultsCont.innerHTML = '';
 
   const steps = [
-    'Parsing CIF file…','Extracting lattice parameters…',
-    'Identifying atomic sites…','Computing T₂ coherence time…','Finalizing results…',
+    // 'Parsing CIF file…','Extracting lattice parameters…', 'Identifying atomic sites…','Computing T₂ coherence time…','Finalizing results…',
+    'Computing T₂ coherence time…',
   ];
   let si = 0;
   loadingStep.textContent = steps[0];
@@ -297,7 +297,20 @@ async function runHetero() {
           throw new Error(detail);
         }
         const data = await res.json();
-        out.push({ ok:true, data, filename:`${f2D.name} + ${f3D.name}`, file2D:f2D.name, file3D:f3D.name, mode:'HETERO' });
+        // (3) Pull 3D formula fields out of the response (returned by backend as
+        //     chemical_formula_3d / reduced_formula_3d).  Fall back to the top-level
+        //     fields when the backend hasn't yet been updated to separate them.
+        out.push({
+          ok: true, data,
+          file2D: f2D.name,
+          file3D: f3D.name,
+          // Header labels (reduced formulas, populated after render once data arrives)
+          label2D: data.reduced_formula_2d ?? data.reduced_formula ?? f2D.name,
+          label3D: data.reduced_formula_3d ?? f3D.name,
+          mode: 'HETERO',
+          // convenience: keep the full filename pair for error cards
+          filename: `${f2D.name} + ${f3D.name}`,
+        });
         if (s2D) { s2D.textContent = 'done'; s2D.className = 'file-list-status done'; }
         if (s3D) { s3D.textContent = 'done'; s3D.className = 'file-list-status done'; }
       } catch (err) {
@@ -320,35 +333,35 @@ function renderAllResults(results) {
   _lastResults = results;
   multiResultsCont.innerHTML = '';
 
-  // ── (4) Build raw JSON: hetero gets a trimmed object per pair ──────────────
+  // ── Build raw JSON ────────────────────────────────────────────────────────
   const isHetero = results.some(r => r.mode === 'HETERO');
   let rawPayload;
   if (isHetero) {
-    rawPayload = results
-      .filter(r => r.ok)
-      .map(r => ({
-        file_2d:              r.file2D,
-        file_3d:              r.file3D,
-        chemical_formula_2d:  r.data.chemical_formula_2d   ?? r.data.chemical_formula ?? null,
-        reduced_formula_2d:   r.data.reduced_formula_2d    ?? r.data.reduced_formula  ?? null,
-        chemical_formula_3d:  r.data.chemical_formula_3d   ?? null,
-        reduced_formula_3d:   r.data.reduced_formula_3d    ?? null,
-        T2:                   r.data.T2,
-        T2_unit:              r.data.T2_unit,
-      }));
+    rawPayload = results.filter(r => r.ok).map(r => ({
+      file_2d:             r.file2D,
+      file_3d:             r.file3D,
+      // (3) Use fields returned by backend; label2D/label3D are set from those same fields
+      chemical_formula_2d: r.data.chemical_formula_2d ?? r.data.chemical_formula ?? null,
+      reduced_formula_2d:  r.data.reduced_formula_2d  ?? r.data.reduced_formula  ?? null,
+      chemical_formula_3d: r.data.chemical_formula_3d ?? null,
+      reduced_formula_3d:  r.data.reduced_formula_3d  ?? null,
+      T2:                  r.data.T2,
+      T2_unit:             r.data.T2_unit,
+    }));
   } else {
     const allData = results.filter(r => r.ok).map(r => r.data);
     rawPayload = allData.length === 1 ? allData[0] : allData;
   }
   rawJson.textContent = JSON.stringify(rawPayload, null, 2);
 
-  // ── Render cards ──────────────────────────────────────────────────────────
+  // ── Render one card per result ────────────────────────────────────────────
   results.forEach((result, idx) => {
     const card = document.createElement('div');
     card.className = 'result-card';
     card.style.animationDelay = `${idx * 0.07}s`;
 
     if (!result.ok) {
+      // Error card — always show filename in header
       card.innerHTML = `
         <div class="result-card-header">
           <span class="result-card-filename">${result.filename}</span>
@@ -365,23 +378,27 @@ function renderAllResults(results) {
         </div>`;
 
     } else if (result.mode === 'HETERO') {
-      // ── (3) Hetero card: only 2D file, 3D file, and T₂ ──────────────────
+      // ── Hetero card: header = reduced formula 2D + reduced formula 3D ──────
       const d = result.data;
       const { t2_value, t2_unit } = formatT2(d.T2);
+      // (2) Use reduced formula labels (set in runHetero from backend response)
+      const label2D = result.label2D;
+      const label3D = result.label3D;
+      const headerLabel = `${label2D} + ${label3D}`;
       card.innerHTML = `
         <div class="result-card-header">
-          <span class="result-card-filename">${result.filename}</span>
+          <span class="result-card-filename">${headerLabel}</span>
           <span class="result-card-index">${idx+1} / ${results.length}</span>
         </div>
         <div class="result-card-body">
           <div style="display:flex;gap:0.4rem;margin-bottom:0.75rem;flex-wrap:wrap;">
             <span style="font-family:var(--font-mono);font-size:0.7rem;padding:0.15em 0.55em;border-radius:4px;
                   background:var(--accent-dim);color:var(--accent);border:1px solid var(--border)">
-              2D: ${result.file2D}
+              2D: ${label2D}
             </span>
             <span style="font-family:var(--font-mono);font-size:0.7rem;padding:0.15em 0.55em;border-radius:4px;
                   background:var(--accent2-dim);color:var(--accent2);border:1px solid rgba(59,143,255,0.2)">
-              3D: ${result.file3D}
+              3D: ${label3D}
             </span>
           </div>
           <div class="t2-hero">
@@ -395,13 +412,15 @@ function renderAllResults(results) {
         </div>`;
 
     } else {
-      // ── Standard 3D / 2D card ─────────────────────────────────────────────
+      // ── Standard 3D / 2D card: header = reduced formula ───────────────────
       const d = result.data;
       const { t2_value, t2_unit } = formatT2(d.T2);
       const lp = d.lattice_parameters ?? {};
+      // (2) Use reduced formula as the card header label
+      const headerLabel = d.reduced_formula ?? result.filename;
       card.innerHTML = `
         <div class="result-card-header">
-          <span class="result-card-filename">${result.filename}</span>
+          <span class="result-card-filename">${headerLabel}</span>
           <span class="result-card-index">${idx+1} / ${results.length}</span>
         </div>
         <div class="result-card-body">
@@ -440,10 +459,9 @@ function renderAllResults(results) {
   resultsPanel.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
-// ── (2) Download handlers ─────────────────────────────────────────────────────
+// ── Download handlers ─────────────────────────────────────────────────────────
 $('downloadJson').addEventListener('click', () => {
-  const text = rawJson.textContent;
-  const blob = new Blob([text], { type: 'application/json' });
+  const blob = new Blob([rawJson.textContent], { type: 'application/json' });
   triggerDownload(blob, 't2_results.json');
 });
 
@@ -452,13 +470,14 @@ $('downloadExcel').addEventListener('click', () => {
   let rows;
 
   if (isHetero) {
+    // (3) Use label2D/label3D (from reduced_formula backend fields) and chemical_formula_3d
     rows = _lastResults.filter(r => r.ok).map(r => ({
+      'Reduced Formula 2D':  r.label2D,
+      'Reduced Formula 3D':  r.label3D,
       'File 2D':             r.file2D,
       'File 3D':             r.file3D,
-      'Chemical Formula 2D': r.data.chemical_formula_2d  ?? r.data.chemical_formula ?? '',
-      'Reduced Formula 2D':  r.data.reduced_formula_2d   ?? r.data.reduced_formula  ?? '',
-      'Chemical Formula 3D': r.data.chemical_formula_3d  ?? '',
-      'Reduced Formula 3D':  r.data.reduced_formula_3d   ?? '',
+      'Chemical Formula 2D': r.data.chemical_formula_2d ?? r.data.chemical_formula ?? '',
+      'Chemical Formula 3D': r.data.chemical_formula_3d ?? '',
       'T2 (ms)':             r.data.T2,
     }));
   } else {
@@ -466,18 +485,18 @@ $('downloadExcel').addEventListener('click', () => {
       const d = r.data;
       const lp = d.lattice_parameters ?? {};
       return {
-        'File':             r.filename,
-        'Chemical Formula': d.chemical_formula ?? '',
         'Reduced Formula':  d.reduced_formula  ?? '',
+        'Chemical Formula': d.chemical_formula ?? '',
+        'File':             r.filename,
         'Num Atoms':        d.num_atoms        ?? '',
         'Crystal System':   d.crystal_system   ?? '',
         'Space Group':      d.space_group      ?? '',
-        'a (Å)':            lp.a ?? '',
-        'b (Å)':            lp.b ?? '',
-        'c (Å)':            lp.c ?? '',
-        'α (°)':            lp.alpha  ?? '',
-        'β (°)':            lp.beta   ?? '',
-        'γ (°)':            lp.gamma  ?? '',
+        'a (Å)':            lp.a     ?? '',
+        'b (Å)':            lp.b     ?? '',
+        'c (Å)':            lp.c     ?? '',
+        'α (°)':            lp.alpha ?? '',
+        'β (°)':            lp.beta  ?? '',
+        'γ (°)':            lp.gamma ?? '',
         'T2 (ms)':          d.T2,
       };
     });
