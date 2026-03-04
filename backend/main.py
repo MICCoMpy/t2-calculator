@@ -99,44 +99,13 @@ class ComputeResponse(BaseModel):
 
 
 # ── T₂ Computation ────────────────────────────────────────────────────────────
-def compute_T2(structure: Structure) -> float:
-    """
-    Compute the spin–spin coherence time T₂ for a crystal structure.
-
-    *** PLACEHOLDER — implement your own physics here ***
-
-    Parameters
-    ----------
-    structure : pymatgen.core.Structure
-        Fully parsed crystal structure.
-
-    Returns
-    -------
-    float
-        T₂ value in **seconds**.
-    """
-    # ─────────────────────────────────────────────────────
-    # TODO: Replace this placeholder with your T₂ model.
-    #
-    # Example inputs you may find useful:
-    #
-    #   structure.composition          → Composition object
-    #   structure.lattice.abc          → (a, b, c) in Å
-    #   structure.lattice.angles       → (α, β, γ) in degrees
-    #   structure.lattice.volume       → Volume in Å³
-    #   structure.num_sites            → Total number of sites
-    #   structure.species              → List of Species objects
-    #   structure.get_neighbors(site, r=3.0)  → Nearest neighbors
-    #
-    # For a magnetic resonance / spin-bath model you might
-    # combine the nuclear spin bath density, dipolar coupling
-    # constants, and cluster expansion methods here.
-    # ─────────────────────────────────────────────────────
-
-    # Temporary stub: returns None so the frontend shows "—"
-    return None
-
-
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+all_spins = pd.read_csv(os.path.join(__location__, 'isotopes.txt'), 
+                        sep='\s+', 
+                        header=None, 
+                        comment='%',
+                        names=['protons', 'nucleons', 'radioactive', 'symbol', 'name', 'spin', 'g', 'conc', 'q'])
+vdW_radii_filedata = open(os.path.join(__location__, 'vdW_Radii.csv')).readlines()
 
 
 def gamma_custom(x):
@@ -173,7 +142,7 @@ def Get_Thickness(structure):
     # Get van der Waals radii
     vdW_radii = {}
     #for line in open("/mnt/c/Users/Michael/OneDrive - The University of Chicago/Documents/2D_Host_Substrates/Manuscript/Zenodo_Entry/v1.0.1/Scripts/Tools/vdW_Radii.csv").readlines():
-    for line in open("/home/toriyama/Utils/Radii/vdW_Radii.csv").readlines():
+    for line in vdW_radii_filedata:
         line = line.split(",")
         vdW_radii[line[0]] = float(line[1])
 
