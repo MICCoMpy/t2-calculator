@@ -46,7 +46,7 @@
         </svg>
         <div class="logo-text">
           <span class="logo-title">T₂ Calculator</span>
-          <span class="logo-sub">Qubit Coherence Analysis</span>
+          <span class="logo-sub">Qubit Coherence</span>
         </div>
       </div>
       <nav class="header-nav">
@@ -64,7 +64,7 @@
       <!-- CHANGE 2: hero-title now uses DM Sans (body font) via CSS override -->
       <h1 class="hero-title">
         Computing <br />
-        <span class="hero-accent">Spin Coherence Time T₂</span> <br />
+        <span class="hero-accent">Spin Coherence Time T<sub>2</sub></span> <br />
         from Crystal Structures
       </h1>
       <p class="hero-desc">
@@ -242,7 +242,7 @@
           </div>
           <p>
             where \(\mathbf{SDS}\) is the zero-field splitting term, \(\mathbf{B} \gamma_e \mathbf{S}\) and \(\mathbf{B} \gamma_i \mathbf{I}_i\) are the Zeeman splitting terms, \(\mathbf{S} \mathbf{A}_i \mathbf{I}_i\) is the hyperfine term, and \(\mathbf{I}_i \mathbf{J}_{ij} \mathbf{I}_j\) is the nuclear dipolar interaction term.
-            From the Hamiltonian \(\hat{H}\), the coherence function \(L(t)\) of the qubit can be computed
+            From the Hamiltonian \(\hat{H}\) and resulting density matrix \(\rho\), the coherence function \(L(t)\) of the qubit can be computed
           </p>
           <div class="theory-eq">
             \[
@@ -266,7 +266,7 @@
               The dominant decoherence mechanism is magnetic dipolar interactions between the qubit spin and nuclear isotopes present in the material. As a result, <strong>T₂ is largely a property of the host material</strong>, rather than the spin defect itself.
             </li>
             <li>
-              The secular approximation is invoked, which is permitted when \(\hat{S}_z\) is a good quantum number. This is generally a safe approximation in the high magnetic field limit.
+              The <strong>secular approximation</strong> is invoked, which is permitted when \(\hat{S}_z\) is a good quantum number. This is generally a safe approximation in the high magnetic field limit.
             </li>
           </ul>
 
