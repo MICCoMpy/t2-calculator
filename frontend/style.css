@@ -606,8 +606,8 @@ code {
 }
 .about-inner { max-width: 1100px; margin: 0 auto; }
 
-/* Section titles — DM Sans to match hero title */
-.about-title, .ack-title, .theory-title {
+/* CHANGE 3: section titles use DM Sans (body font) to match hero title */
+.about-title, .ack-title .theory-title{
   font-family: var(--font-body);
   font-size: clamp(1.5rem, 3vw, 1.9rem);
   font-weight: 500;
@@ -642,91 +642,30 @@ code {
   border-top: 1px solid var(--border-light);
   padding-top: 3rem;
 }
-/* theory-title is now governed by the shared rule above */
-.theory-body {
-  font-size: 0.92rem;
-  color: var(--text-2);
-  line-height: 1.8;
-  max-width: 820px;   /* matches .ack-inner max-width */
-}
-.theory-body p { margin-bottom: 1.1rem; }
-.theory-body p:last-child { margin-bottom: 0; }
-.theory-body a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
-.theory-body a:hover { opacity: 0.75; }
-.theory-body strong { color: var(--text); font-weight: 500; }
-
-/* Change 5: indented bullet points */
-.theory-body ul, .theory-body ol {
-  margin: 0.75rem 0 1.1rem 1.75rem;
-  padding: 0;
-}
-.theory-body li {
-  margin-bottom: 0.5rem;
-  line-height: 1.75;
-}
-.theory-body li:last-child { margin-bottom: 0; }
-
-/* Change 3: block equations rendered by MathJax */
-.theory-eq {
-  margin: 1.5rem 0;
-  text-align: center;
-  overflow-x: auto;
-}
-/* Change 4: inline citation superscript links */
-.cite-link {
-  color: var(--accent);
-  text-decoration: none;
-  font-size: 0.78em;
-  vertical-align: super;
-  line-height: 0;
-  font-family: var(--font-mono);
-  padding: 0 1px;
-  transition: opacity 0.2s;
-}
-.cite-link:hover { opacity: 0.7; text-decoration: underline; }
-
-.cite-link-nohover {
-  color: var(--accent);
-  text-decoration: none;
-  font-size: 0.78em;
-  vertical-align: super;
-  line-height: 0;
-  font-family: var(--font-mono);
-  padding: 0 1px;
-  transition: opacity 0.2s;
-}
-
-/* Change 4: references subsection */
-.theory-references {
-  margin-top: 2.5rem;
-  padding-top: 1.75rem;
-  border-top: 1px solid var(--border-light);
-}
-.theory-references-title {
+.theory-title {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 500;
   color: var(--text);
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   letter-spacing: -0.01em;
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
-.theory-references ol {
-  margin: 0 0 0 1.5rem;
-  padding: 0;
+.theory-body {
+  font-size: 0.9rem;
+  color: var(--text-2);
+  line-height: 1.8;
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
 }
-.theory-references li {
-  font-size: 0.83rem;
-  color: var(--text-3);
-  line-height: 1.65;
-  margin-bottom: 0.6rem;
-  scroll-margin-top: 80px; /* offset for sticky header */
-}
-.theory-references li a {
-  color: var(--accent);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.theory-references li a:hover { opacity: 0.75; }
+.theory-body p { margin-bottom: 1rem; }
+.theory-body p:last-child { margin-bottom: 0; }
+.theory-body a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.theory-body strong { color: var(--text); font-weight: 500; }
 
 /* Figure support */
 .theory-figures {
