@@ -200,13 +200,9 @@ def Get_NuclearSpinDensity(natural_abundance_percent, structure, atom_type):
     return number_density * (natural_abundance_percent/100)
 
 
-def Compute_T2( struc: Structure, 
-                alpha_2D=2.84, 
-                prefactor=1.0, 
-                eta_3D=1.5,
-                ) -> float:
+def Compute_T2_2D(struc: Structure) -> float:
     """
-    Calculate the T2 time for the structure, considering all atom types.
+    Calculate the T2 time for a 2D material, considering all atom types.
 
     Parameters
     ----------
@@ -218,6 +214,10 @@ def Compute_T2( struc: Structure,
     float
         T2 value in **ms**.
     """
+
+    alpha_2D = 2.84 
+    eta_3D = 1.5
+    
     T2_elems = []
 
     # Get elements (not species, which can have charge)
@@ -241,7 +241,7 @@ def Compute_T2( struc: Structure,
 
             factor_3D = ( Area(3) * n_3D * H(p=eta_3D*2./3) )**(1./eta_3D)
             factor_2D = ( Area(2) * n_3D * Get_Thickness(struc) * H(p=2./alpha_2D) )**(alpha_2D/3)
-            T2_elem_2D = T2_elem_3D * factor_3D / factor_2D * prefactor
+            T2_elem_2D = T2_elem_3D * factor_3D / factor_2D
 
             T2_elems.append(T2_elem_2D)
 
@@ -253,13 +253,68 @@ def Compute_T2( struc: Structure,
 
 
 
+# ====================================================================
+# Functions specifically for 3D structures
+# ====================================================================
+
+# Calculate nuclear spin density of an element, from its natural abundance and the structure
+def Get_NuclearSpinDensity_3D(natural_abundance_percent, structure, atom_type):
+    
+    # Calculate volume of the 2D material
+    volume = structure.volume * 1e-24
+
+    # Count atoms of specified type in structure
+    count = 0
+    for atom in structure.sites:
+        if atom.specie.symbol == atom_type:
+            count += 1
+
+    # Get number density of element in the structure
+    number_density = count / volume
+
+    return number_density * (natural_abundance_percent/100)
 
 
+def Compute_T2_3D(struc: Structure) -> float:
+    """
+    Calculate the T2 time for a 3D material, considering all atom types.
 
+    Parameters
+    ----------
+    struc : pymatgen.core.Structure
+        Fully parsed crystal structure.
 
+    Returns
+    -------
+    float
+        T2 value in **ms**.
+    """
 
+    T2_elems = []
+    for element in set(struc.species):
+        element = str(element)
+        df_elem = all_spins[all_spins["symbol"] == element]
+        for i, row in df_elem.iterrows():
 
+            # Get relevant isotope data
+            abun_perc = row["conc"]
+            n_3D = Get_NuclearSpinDensity_3D(abun_perc, struc, element)
+            g = row["g"]
+            I = row["spin"]
 
+            # Check whether any are zero
+            if np.any(np.array([n_3D,g,I]) == 0.0): continue
+
+            # Calculate T2 of element
+            T2_elem_3D = T2_Kanai_Element(n_3D, g, I)
+
+            T2_elems.append(T2_elem_3D)
+
+    # Calculate T2 of compound
+    T2_comp = T2_Kanai(T2_elems, exp=2)
+    T2_comp *= 1000  # Unit conversion, from s to ms
+
+    return T2_comp
 
 
 
@@ -346,7 +401,7 @@ async def health():
 )
 async def compute(
     file: UploadFile = File(..., description="CIF structure file"),
-    dimensionality: str = "2D",   # "3D" or "2D" — sent by the frontend selector
+    dimensionality: str = "3D",   # "3D" or "2D" — sent by the frontend selector
 ):
     # ── Read & validate ───────────────────────────────────────────────────────
     content = await file.read()
@@ -384,12 +439,12 @@ async def compute(
 
     # ── Compute T₂ ────────────────────────────────────────────────────────────
     dim = dimensionality.strip().upper()
-    if dim == "2D":
+    if dim == "3D":
         # ── Placeholder: replace with your 2D function when ready ──────────
         # T2_value = Compute_T2_2D(structure)
-        T2_value = Compute_T2(structure)   # falls back to 3D model for now
+        T2_value = Compute_T2_3D(structure)   # falls back to 3D model for now
     else:
-        T2_value = Compute_T2(structure)
+        T2_value = Compute_T2_2D(structure)
 
     # ── Build response ────────────────────────────────────────────────────────
     response = ComputeResponse(
@@ -421,6 +476,92 @@ async def compute(
         T2_value,
     )
 
+    return response
+
+
+
+# ── Heterostructure endpoint ──────────────────────────────────────────────────
+@app.post(
+    "/compute_heterostructure",
+    summary="Upload a 2D and a 3D CIF file and compute heterostructure T₂",
+    description=(
+        "Accepts two .cif files: one for the 2D monolayer (file_2d) and one for the 3D "
+        "substrate (file_3d). Calls Compute_T2_Heterostructure() and returns the result."
+    ),
+)
+async def compute_heterostructure(
+    file_2d: UploadFile = File(..., description="2D monolayer CIF structure file"),
+    file_3d: UploadFile = File(..., description="3D substrate CIF structure file"),
+):
+    # ── Read & validate both files ────────────────────────────────────────────
+    content_2d = await file_2d.read()
+    content_3d = await file_3d.read()
+    validate_upload(file_2d, content_2d)
+    validate_upload(file_3d, content_3d)
+
+    logger.info(
+        "Heterostructure: 2D=%s (%d bytes), 3D=%s (%d bytes)",
+        file_2d.filename, len(content_2d), file_3d.filename, len(content_3d),
+    )
+
+    # ── Parse both structures ─────────────────────────────────────────────────
+    structure_2d = parse_cif(content_2d)
+    structure_3d = parse_cif(content_3d)
+
+    # ── Symmetry analysis for the 2D layer (reported in response) ─────────────
+    try:
+        analyzer       = SpacegroupAnalyzer(structure_2d)
+        crystal_system = analyzer.get_crystal_system()
+        space_group    = analyzer.get_space_group_symbol()
+        space_group_num = analyzer.get_space_group_number()
+    except Exception as exc:
+        logger.warning("Symmetry analysis failed (non-fatal): %s", exc)
+        crystal_system  = "unknown"
+        space_group     = "unknown"
+        space_group_num = 0
+
+    lattice = structure_2d.lattice
+    a, b, c            = lattice.abc
+    alpha, beta, gamma = lattice.angles
+    volume             = lattice.volume
+    try:
+        density = structure_2d.density
+    except Exception:
+        density = 0.0
+
+    # ── Compute heterostructure T₂ ────────────────────────────────────────────
+    # ─────────────────────────────────────────────────────────────────────────
+    # TODO: replace the line below with your own function, e.g.:
+    #   T2_value = Compute_T2_Heterostructure(structure_2d, structure_3d)
+    # The function receives both parsed pymatgen Structure objects and should
+    # return a T₂ value in milliseconds (float).
+    # ─────────────────────────────────────────────────────────────────────────
+    T2_value = Compute_T2_2D(structure_2d)   # placeholder — replace when ready
+
+    response = ComputeResponse(
+        chemical_formula   = structure_2d.composition.formula,
+        reduced_formula    = structure_2d.composition.reduced_formula,
+        num_atoms          = len(structure_2d),
+        num_sites          = structure_2d.num_sites,
+        lattice_parameters = LatticeParameters(
+            a=round(a, 6), b=round(b, 6), c=round(c, 6),
+            alpha=round(alpha, 6), beta=round(beta, 6), gamma=round(gamma, 6),
+            volume=round(volume, 6),
+        ),
+        crystal_system     = crystal_system,
+        space_group        = space_group,
+        space_group_number = space_group_num,
+        density            = round(density, 4),
+        T2                 = T2_value,
+        T2_unit            = "ms",
+    )
+
+    logger.info(
+        "Heterostructure result: 2D=%s, 3D=%s, T2=%s ms",
+        structure_2d.composition.reduced_formula,
+        structure_3d.composition.reduced_formula,
+        T2_value,
+    )
     return response
 
 

@@ -727,7 +727,8 @@ code {
 
 /* (4) Dimensionality selector */
 .dim-selector-wrap {
-  margin-top: 1.25rem;
+  margin-top: 0;
+  margin-bottom: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -775,7 +776,70 @@ code {
   letter-spacing: 0.04em;
 }
 .dim-pill.selected .dim-pill-sub { color: var(--accent); opacity: 0.7; }
-.theory-figures {
+
+/* Heterostructure pill uses accent2 when selected */
+#pillHetero.selected {
+  border-color: var(--accent2);
+  background: var(--accent2-dim);
+  color: var(--accent2);
+}
+#pillHetero.selected .dim-pill-sub { color: var(--accent2); opacity: 0.7; }
+
+/* ── Heterostructure dual drop zones ── */
+.hetero-zones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.hetero-zone-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.hetero-zone-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hetero-zone-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.hetero-badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 0.1em 0.5em;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+}
+.hetero-badge-2d {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid var(--border);
+}
+.hetero-badge-3d {
+  background: var(--accent2-dim);
+  color: var(--accent2);
+  border: 1px solid rgba(59,143,255,0.2);
+}
+/* Smaller padding for hetero drop zones so they fit side-by-side */
+.hetero-drop {
+  padding: 1.5rem 1rem;
+  min-height: 160px;
+}
+/* 3D drop zone accent uses --accent2 */
+.hetero-drop-3d { border-color: rgba(59,143,255,0.15); }
+.hetero-drop-3d:hover,
+.hetero-drop-3d.drag-over { border-color: var(--accent2); }
+.drop-icon-sm svg { width: 44px; height: 44px; }
+
+@media (max-width: 600px) {
+  .hetero-zones { grid-template-columns: 1fr; }
+}
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
