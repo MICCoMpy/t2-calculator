@@ -275,39 +275,24 @@
           </ul>
 
           <p>
-            For each naturally abundant isotope of every element in the structure, the nuclear spin
-            density \(n\) is computed from the lattice volume and natural abundance. The
-            single-element coherence time scales as&nbsp;<a href="#ref3" class="cite-link">[3]</a>:
+            For each naturally abundant isotope \(\alpha\) of every element in the structure, the nuclear g-factor \(g_\alpha\), nuclear spin quantum number \(I_\alpha\), and natural abundance are read from the <a href="https://easyspin.org/easyspin/documentation/isotopetable.html" target="_blank">EasySpin database</a>. The nuclear spin density \(n_\alpha\) is computed from the lattice volume and natural abundance. The single-element coherence time scales as&nbsp;<a href="#ref3" class="cite-link">[3]</a>:
           </p>
-
           <div class="theory-eq">
             \[
-              T_2^{(\alpha)} \propto
-                \left|g_\alpha\right|^{-1.64}
-                \, I_\alpha^{-1.1}
-                \, n_\alpha^{-1}
+              T_{2,\textrm{3D},i} = 1.46 \times 10^{18} \left|g_i\right|^{-1.64} I_i^{-1.1} n_i^{-1}
             \]
           </div>
-
           <p>
-            where \(g_\alpha\) is the nuclear g-factor, \(I_\alpha\) the nuclear spin quantum
-            number, and \(n_\alpha\) the nuclear spin density of isotope \(\alpha\).
-            Contributions from all isotopes are combined using the Kanai power-law
-            formula&nbsp;<a href="#ref3" class="cite-link">[3]</a>:
+            Contributions from all isotopes are combined using a power-law formula&nbsp;<a href="#ref3" class="cite-link">[3]</a>:
           </p>
-
           <div class="theory-eq">
             \[
-              \frac{1}{T_2^{3/\eta}} =
-                \sum_\alpha \frac{1}{\left(T_2^{(\alpha)}\right)^{3/\eta}}
+              T_{2,\textrm{3D}}^{-2} = \sum_i \left(T_{2,\textrm{3D},i}^{(\alpha)}\right)^{-2}
             \]
           </div>
-
           <p>
-            For 2D materials, a geometric correction factor is applied to account for the reduced
-            dimensionality of the nuclear spin bath&nbsp;<a href="#ref4" class="cite-link">[4]</a>.
-            The material thickness \(d\) is estimated from the van der Waals radii of the outermost
-            atoms, and the 2D nuclear spin density is defined as:
+            For 2D materials, a dimensional correction factor is applied&nbsp;<a href="#ref4" class="cite-link">[4]</a>.
+            The thickness \(w\) is estimated using the van der Waals radii of the outermost atoms, and the 2D nuclear spin density is defined as:
           </p>
 
           <div class="theory-eq">
