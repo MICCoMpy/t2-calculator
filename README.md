@@ -4,16 +4,15 @@ T₂ Calculator
 
 **Spin Coherence Time Analysis from Crystal Structures**
 
-A full-stack web application that accepts crystallographic information files (`.cif`), parses them using `pymatgen`, and computes the spin coherence time **T₂** for the material. The website is hosted on [https://mathtoriyama.github.io/t2-calculator](https://mathtoriyama.github.io/t2-calculator).
+A full-stack web application that accepts crystallographic information files (`.cif`), parses them using `pymatgen`, and computes the spin coherence time **T₂** for the material.
+
+The website is hosted on <a href="https://miccompy.github.io/t2-calculator/" target="_blank">https://miccompy.github.io/t2-calculator/</a>.
 
 
 If you use this applet, please remember to cite:
 
-- *Generalized scaling of spin qubit coherence in over 12,000 host materials*
-[S. Kanai, et al., Proc. Natl. Acad. Sci. 119, e2121808119 (2022)](https://doi.org/10.1073/pnas.2121808119)
-
-- *Strategies to search for two-dimensional materials with long spin qubit coherence time*
-[M.Y. Toriyama, et al., npj 2D Mater. Appl., 9, 108 (2025)](https://doi.org/10.1038/s41699-025-00623-8)
+- <a href="https://doi.org/10.1073/pnas.2121808119" target="_blank">*Generalized scaling of spin qubit coherence in over 12,000 host materials*, S. Kanai, et al., Proc. Natl. Acad. Sci. 119, e2121808119 (2022)</a>
+- <a href="https://doi.org/10.1038/s41699-025-00623-8" target="_blank">*Strategies to search for two-dimensional materials with long spin qubit coherence time*, M.Y. Toriyama, et al., npj 2D Mater. Appl., 9, 108 (2025)</a>
 
 
 Acknowledgements
