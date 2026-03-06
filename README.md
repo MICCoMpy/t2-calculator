@@ -17,5 +17,5 @@ If you use this applet, please remember to cite:
 
 Acknowledgements
 ================
-This work was supported by the Midwest Integrated Center for Computational Materials (MICCoM). MICCoM is part of the Computational Materials Sciences Program funded by the U.S. Department of Energy, Office of Science, Basic Energy Sciences, Materials Sciences, and Engineering Division through the Argonne National Laboratory, under contract No. DEAC02-06CH11357.
+This work was supported by the <a href="https://miccom-center.org" target="_blank">Midwest Integrated Center for Computational Materials (MICCoM)</a>. MICCoM is part of the Computational Materials Sciences Program funded by the U.S. Department of Energy, Office of Science, Basic Energy Sciences, Materials Sciences, and Engineering Division through the Argonne National Laboratory, under contract No. DEAC02-06CH11357.
 
