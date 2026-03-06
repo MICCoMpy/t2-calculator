@@ -7,7 +7,7 @@
 const CONFIG = {
   API_BASE: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8000'
-    : 'https://t2-calculator.onrender.com',
+    : 'https://t2-calculator-bt2a.onrender.com',
   MAX_FILE_SIZE_MB: 10,
   ALLOWED_EXT: '.cif',
 };
