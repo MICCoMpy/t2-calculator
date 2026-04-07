@@ -1,13 +1,10 @@
 
-T₂ Calculator
+Spin Coherence Time (T<sub>2</sub>) Analysis from Crystal Structures
 =======================
 
-**Spin Coherence Time Analysis from Crystal Structures**
-
-A full-stack web application that accepts crystallographic information files (`.cif`), parses them using `pymatgen`, and computes the spin coherence time **T₂** for the material.
+A full-stack web application that accepts crystallographic information files (`.cif`), parses them using `pymatgen`, and computes the spin coherence time **T<sub>2</sub>** for the material. We also have a browser for T<sub>2</sub>, which are linked to materials databases such as the Materials Project database.
 
 The website is hosted on <a href="https://miccompy.github.io/t2-calculator/" target="_blank">https://miccompy.github.io/t2-calculator/</a>.
-
 
 If you use this applet, please remember to cite:
 
