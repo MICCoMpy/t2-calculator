@@ -922,6 +922,228 @@ code {
 }
 .ack-desc a:hover { opacity: 0.75; }
 
+/* ── Database Explorer ── */
+.db-section {
+  position: relative; z-index: 1;
+  padding: 4rem 2rem;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg);
+}
+.db-inner { max-width: 1100px; margin: 0 auto; }
+
+/* Periodic table */
+.ptable-wrap { margin-bottom: 1.75rem; }
+.ptable {
+  display: grid;
+  grid-template-columns: repeat(18, minmax(0, 1fr));
+  gap: 3px;
+  margin-bottom: 0.75rem;
+}
+.pt-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  min-width: 0;
+  padding: 2px;
+  user-select: none;
+}
+.pt-cell:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  transform: scale(1.1);
+  z-index: 2;
+  position: relative;
+}
+.pt-cell.selected {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.pt-cell.unavailable {
+  opacity: 0.22;
+  cursor: default;
+  pointer-events: none;
+}
+.pt-cell.placeholder { border: none; background: transparent; cursor: default; pointer-events: none; }
+.pt-sym  { font-family: var(--font-body); font-size: clamp(0.45rem, 1vw, 0.8rem); font-weight: 600; color: var(--text); line-height: 1; }
+.pt-num  { font-family: var(--font-mono); font-size: clamp(0.3rem, 0.6vw, 0.55rem); color: var(--text-3); line-height: 1; margin-top: 1px; }
+
+/* Category colours (subtle) */
+.pt-alkali     { border-color: rgba(255,180,50,0.25); }
+.pt-alkaline   { border-color: rgba(255,210,80,0.2); }
+.pt-transition { border-color: rgba(100,160,255,0.18); }
+.pt-post       { border-color: rgba(140,220,180,0.18); }
+.pt-metalloid  { border-color: rgba(180,140,255,0.2); }
+.pt-nonmetal   { border-color: rgba(80,220,160,0.2); }
+.pt-halogen    { border-color: rgba(255,120,120,0.2); }
+.pt-noble      { border-color: rgba(180,180,255,0.2); }
+.pt-lanthanide { border-color: rgba(255,160,200,0.2); }
+.pt-actinide   { border-color: rgba(200,140,255,0.2); }
+
+.ptable-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.ptable-clear-btn {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.ptable-clear-btn:hover { border-color: var(--accent); color: var(--accent); }
+.ptable-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-3);
+  letter-spacing: 0.02em;
+}
+
+/* Toolbar */
+.db-toolbar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+.db-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+.db-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  pointer-events: none;
+}
+.db-search {
+  width: 100%;
+  padding: 0.55rem 0.75rem 0.55rem 2.25rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.db-search:focus { border-color: var(--accent); }
+.db-sort-wrap { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+.db-sort-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-3); white-space: nowrap; }
+.db-sort {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.db-sort:focus { border-color: var(--accent); }
+
+/* Meta */
+.db-meta {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-3);
+  letter-spacing: 0.03em;
+  margin-bottom: 0.6rem;
+}
+
+/* Table */
+.db-table-wrap {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  overflow: hidden;
+  overflow-x: auto;
+}
+.db-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+.db-th {
+  background: var(--bg-card);
+  color: var(--text-3);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.7rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+.db-table tbody tr {
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.12s;
+}
+.db-table tbody tr:last-child { border-bottom: none; }
+.db-table tbody tr:hover { background: var(--bg-card); }
+.db-td {
+  padding: 0.6rem 1rem;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.db-td-num { color: var(--text-3); font-size: 0.72rem; }
+.db-td-formula { color: var(--text); font-weight: 500; }
+.db-td-id a {
+  color: var(--accent2);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.db-td-id a:hover { opacity: 0.75; text-decoration: underline; }
+.db-td-t2 { color: var(--accent); }
+
+/* Pagination */
+.db-pagination {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+.db-page-btn {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  min-width: 36px;
+  text-align: center;
+}
+.db-page-btn:hover { border-color: var(--accent); color: var(--accent); }
+.db-page-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.db-page-btn:disabled { opacity: 0.3; pointer-events: none; }
+.db-page-ellipsis { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-3); padding: 0 0.2rem; }
+
 /* ── Footer ── */
 .site-footer {
   position: relative; z-index: 1;

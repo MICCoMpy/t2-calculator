@@ -7,10 +7,13 @@
 const CONFIG = {
   API_BASE: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8000'
-    : 'https://t2-calculator-bt2a.onrender.com',
+    : 'https://t2-calculator-testing-1.onrender.com',
   MAX_FILE_SIZE_MB: 10,
   ALLOWED_EXT: '.cif',
 };
+
+// Add near the top of app.js, after CONFIG is defined
+fetch(`${CONFIG.API_BASE}/health`).catch(() => {});  // Wake up Render on page load
 
 // ── DOM helpers ───────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -562,3 +565,267 @@ function formatT2(t2) {
   if (v >= 1e-3)  return { t2_value:(v*1e3).toPrecision(4),   t2_unit:'μs' };
   return               { t2_value:(v*1e6).toPrecision(4),   t2_unit:'ns' };
 }
+
+// ═══════════════════════════════════════════════════════════════
+//  DATABASE EXPLORER
+// ═══════════════════════════════════════════════════════════════
+
+// ── Periodic table layout ──────────────────────────────────────
+// Each entry: [symbol, atomic_number, col, row, category]
+const PT_ELEMENTS = [
+  ['H',1,1,1,'nonmetal'],['He',2,18,1,'noble'],
+  ['Li',3,1,2,'alkali'],['Be',4,2,2,'alkaline'],['B',5,13,2,'metalloid'],['C',6,14,2,'nonmetal'],['N',7,15,2,'nonmetal'],['O',8,16,2,'nonmetal'],['F',9,17,2,'halogen'],['Ne',10,18,2,'noble'],
+  ['Na',11,1,3,'alkali'],['Mg',12,2,3,'alkaline'],['Al',13,13,3,'post'],['Si',14,14,3,'metalloid'],['P',15,15,3,'nonmetal'],['S',16,16,3,'nonmetal'],['Cl',17,17,3,'halogen'],['Ar',18,18,3,'noble'],
+  ['K',19,1,4,'alkali'],['Ca',20,2,4,'alkaline'],['Sc',21,3,4,'transition'],['Ti',22,4,4,'transition'],['V',23,5,4,'transition'],['Cr',24,6,4,'transition'],['Mn',25,7,4,'transition'],['Fe',26,8,4,'transition'],['Co',27,9,4,'transition'],['Ni',28,10,4,'transition'],['Cu',29,11,4,'transition'],['Zn',30,12,4,'transition'],['Ga',31,13,4,'post'],['Ge',32,14,4,'metalloid'],['As',33,15,4,'metalloid'],['Se',34,16,4,'nonmetal'],['Br',35,17,4,'halogen'],['Kr',36,18,4,'noble'],
+  ['Rb',37,1,5,'alkali'],['Sr',38,2,5,'alkaline'],['Y',39,3,5,'transition'],['Zr',40,4,5,'transition'],['Nb',41,5,5,'transition'],['Mo',42,6,5,'transition'],['Tc',43,7,5,'transition'],['Ru',44,8,5,'transition'],['Rh',45,9,5,'transition'],['Pd',46,10,5,'transition'],['Ag',47,11,5,'transition'],['Cd',48,12,5,'transition'],['In',49,13,5,'post'],['Sn',50,14,5,'post'],['Sb',51,15,5,'metalloid'],['Te',52,16,5,'metalloid'],['I',53,17,5,'halogen'],['Xe',54,18,5,'noble'],
+  ['Cs',55,1,6,'alkali'],['Ba',56,2,6,'alkaline'],['La',57,3,6,'lanthanide'],['Hf',72,4,6,'transition'],['Ta',73,5,6,'transition'],['W',74,6,6,'transition'],['Re',75,7,6,'transition'],['Os',76,8,6,'transition'],['Ir',77,9,6,'transition'],['Pt',78,10,6,'transition'],['Au',79,11,6,'transition'],['Hg',80,12,6,'transition'],['Tl',81,13,6,'post'],['Pb',82,14,6,'post'],['Bi',83,15,6,'post'],['Po',84,16,6,'metalloid'],['At',85,17,6,'halogen'],['Rn',86,18,6,'noble'],
+  ['Fr',87,1,7,'alkali'],['Ra',88,2,7,'alkaline'],['Ac',89,3,7,'actinide'],['Rf',104,4,7,'transition'],['Db',105,5,7,'transition'],['Sg',106,6,7,'transition'],['Bh',107,7,7,'transition'],['Hs',108,8,7,'transition'],['Mt',109,9,7,'transition'],['Ds',110,10,7,'transition'],['Rg',111,11,7,'transition'],['Cn',112,12,7,'transition'],['Nh',113,13,7,'post'],['Fl',114,14,7,'post'],['Mc',115,15,7,'post'],['Lv',116,16,7,'post'],['Ts',117,17,7,'halogen'],['Og',118,18,7,'noble'],
+  // Lanthanides row 9 (visual row)
+  ['Ce',58,4,9,'lanthanide'],['Pr',59,5,9,'lanthanide'],['Nd',60,6,9,'lanthanide'],['Pm',61,7,9,'lanthanide'],['Sm',62,8,9,'lanthanide'],['Eu',63,9,9,'lanthanide'],['Gd',64,10,9,'lanthanide'],['Tb',65,11,9,'lanthanide'],['Dy',66,12,9,'lanthanide'],['Ho',67,13,9,'lanthanide'],['Er',68,14,9,'lanthanide'],['Tm',69,15,9,'lanthanide'],['Yb',70,16,9,'lanthanide'],['Lu',71,17,9,'lanthanide'],
+  // Actinides row 10
+  ['Th',90,4,10,'actinide'],['Pa',91,5,10,'actinide'],['U',92,6,10,'actinide'],['Np',93,7,10,'actinide'],['Pu',94,8,10,'actinide'],['Am',95,9,10,'actinide'],['Cm',96,10,10,'actinide'],['Bk',97,11,10,'actinide'],['Cf',98,12,10,'actinide'],['Es',99,13,10,'actinide'],['Fm',100,14,10,'actinide'],['Md',101,15,10,'actinide'],['No',102,16,10,'actinide'],['Lr',103,17,10,'actinide'],
+];
+
+// ── State ─────────────────────────────────────────────────────
+let DB_DATA       = [];   // full dataset loaded from db.json
+let db_selected   = new Set();   // selected element symbols
+let db_filtered   = [];  // current filtered+sorted array
+let db_page       = 1;
+const DB_PER_PAGE = 50;
+let db_sort       = 'desc';
+let db_search     = '';
+let db_filter_mode = 'at-least'; // 'at-least' | 'only'
+
+// ── Build periodic table DOM ───────────────────────────────────
+function buildPeriodicTable() {
+  const ptable = document.getElementById('ptable');
+  if (!ptable) return;
+
+  // Find which elements actually appear in our dataset
+  const available = new Set();
+  DB_DATA.forEach(r => r.el.forEach(e => available.add(e)));
+
+  // Build a grid map: 'row-col' -> element
+  const cellMap = {};
+  PT_ELEMENTS.forEach(([sym, num, col, row, cat]) => {
+    cellMap[`${row}-${col}`] = { sym, num, col, row, cat };
+  });
+
+  // We need 10 rows (1-7 main, 8=spacer, 9=lanthanide, 10=actinide)
+  const maxRow = 10;
+  const maxCol = 18;
+
+  for (let r = 1; r <= maxRow; r++) {
+    for (let c = 1; c <= maxCol; c++) {
+      const key = `${r}-${c}`;
+      const el = cellMap[key];
+      const div = document.createElement('div');
+
+      if (r === 8) {
+        // Spacer row
+        div.className = 'pt-cell placeholder';
+        ptable.appendChild(div);
+        continue;
+      }
+
+      if (!el) {
+        div.className = 'pt-cell placeholder';
+        ptable.appendChild(div);
+        continue;
+      }
+
+      const isAvail = available.has(el.sym);
+      div.className = `pt-cell pt-${el.cat}${isAvail ? '' : ' unavailable'}`;
+      div.dataset.sym = el.sym;
+      div.innerHTML = `<span class="pt-sym">${el.sym}</span><span class="pt-num">${el.num}</span>`;
+      div.title = el.sym;
+
+      if (isAvail) {
+        div.addEventListener('click', () => toggleElement(el.sym));
+      }
+      ptable.appendChild(div);
+    }
+  }
+}
+
+function toggleElement(sym) {
+  if (db_selected.has(sym)) {
+    db_selected.delete(sym);
+  } else {
+    db_selected.add(sym);
+  }
+  // Update visual state
+  document.querySelectorAll('.pt-cell[data-sym]').forEach(cell => {
+    if (db_selected.has(cell.dataset.sym)) {
+      cell.classList.add('selected');
+    } else {
+      cell.classList.remove('selected');
+    }
+  });
+  updateHint();
+  applyFilters();
+}
+
+function updateHint() {
+  const hint = document.getElementById('ptableHint');
+  if (!hint) return;
+  if (db_selected.size === 0) {
+    hint.textContent = 'No elements selected — showing all materials';
+  } else {
+    const modeLabel = db_filter_mode === 'only' ? 'only' : 'at least';
+    hint.textContent = `Selected (${modeLabel}): ${[...db_selected].join(', ')}`;
+  }
+}
+
+// ── Filtering & rendering ──────────────────────────────────────
+function applyFilters() {
+  const selArr = [...db_selected];
+  const q = db_search.trim().toLowerCase();
+
+  db_filtered = DB_DATA.filter(row => {
+    // Element filter
+    if (selArr.length > 0) {
+      const hasAll = selArr.every(e => row.el.includes(e));
+      if (!hasAll) return false;
+      // 'only' mode: material must not contain any elements outside the selection
+      if (db_filter_mode === 'only' && row.el.some(e => !selArr.includes(e))) return false;
+    }
+    // Text search filter
+    if (q && !row.m.toLowerCase().includes(q) && !row.id.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  // Sort by T2
+  db_filtered.sort((a, b) => db_sort === 'desc' ? b.t2 - a.t2 : a.t2 - b.t2);
+
+  db_page = 1;
+  renderTable();
+  renderPagination();
+  updateMeta();
+}
+
+function formatT2Raw(v) {
+  // Format raw T2 value in seconds for the table
+  if (v >= 1) return v.toPrecision(4) + ' s';
+  if (v >= 1e-3) return (v * 1e3).toPrecision(4) + ' ms';
+  if (v >= 1e-6) return (v * 1e6).toPrecision(4) + ' μs';
+  if (v >= 1e-9) return (v * 1e9).toPrecision(4) + ' ns';
+  return v.toExponential(3) + ' s';
+}
+
+function renderTable() {
+  const tbody = document.getElementById('dbTbody');
+  if (!tbody) return;
+
+  const start = (db_page - 1) * DB_PER_PAGE;
+  const slice = db_filtered.slice(start, start + DB_PER_PAGE);
+
+  if (slice.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" class="db-td" style="text-align:center;color:var(--text-3);padding:2rem;">No materials match your selection.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = slice.map((row, i) => {
+    const rank = start + i + 1;
+    const mpLink = row.id
+      ? `<a href="https://next-gen.materialsproject.org/materials/${row.id}" target="_blank" rel="noopener">${row.id}</a>`
+      : '—';
+    return `<tr>
+      <td class="db-td db-td-num">${rank}</td>
+      <td class="db-td db-td-formula">${row.m}</td>
+      <td class="db-td db-td-id">${mpLink}</td>
+      <td class="db-td db-td-t2">${formatT2Raw(row.t2)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderPagination() {
+  const container = document.getElementById('dbPagination');
+  if (!container) return;
+  const totalPages = Math.ceil(db_filtered.length / DB_PER_PAGE);
+  if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+  let html = '';
+  const addBtn = (label, page, isActive = false, disabled = false) => {
+    html += `<button class="db-page-btn${isActive ? ' active' : ''}" data-page="${page}" ${disabled ? 'disabled' : ''}>${label}</button>`;
+  };
+  const addEllipsis = () => { html += `<span class="db-page-ellipsis">…</span>`; };
+
+  addBtn('‹', db_page - 1, false, db_page === 1);
+
+  if (totalPages <= 7) {
+    for (let p = 1; p <= totalPages; p++) addBtn(p, p, p === db_page);
+  } else {
+    addBtn(1, 1, db_page === 1);
+    if (db_page > 3) addEllipsis();
+    for (let p = Math.max(2, db_page - 1); p <= Math.min(totalPages - 1, db_page + 1); p++) {
+      addBtn(p, p, p === db_page);
+    }
+    if (db_page < totalPages - 2) addEllipsis();
+    addBtn(totalPages, totalPages, db_page === totalPages);
+  }
+
+  addBtn('›', db_page + 1, false, db_page === totalPages);
+
+  container.innerHTML = html;
+  container.querySelectorAll('.db-page-btn[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      db_page = parseInt(btn.dataset.page);
+      renderTable();
+      renderPagination();
+      updateMeta();
+      document.getElementById('database').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
+function updateMeta() {
+  const meta = document.getElementById('dbMeta');
+  if (!meta) return;
+  const total = db_filtered.length;
+  const start = (db_page - 1) * DB_PER_PAGE + 1;
+  const end = Math.min(db_page * DB_PER_PAGE, total);
+  meta.textContent = total === 0
+    ? '0 materials found'
+    : `Showing ${start}–${end} of ${total.toLocaleString()} materials`;
+}
+
+// ── Init: load data, wire events ───────────────────────────────
+(async function initDatabase() {
+  try {
+    const res = await fetch('db.json');
+    DB_DATA = await res.json();
+  } catch (e) {
+    const meta = document.getElementById('dbMeta');
+    if (meta) meta.textContent = 'Failed to load database.';
+    return;
+  }
+
+  buildPeriodicTable();
+  applyFilters();
+
+  // Sort control
+  const sortEl = document.getElementById('dbSort');
+  if (sortEl) sortEl.addEventListener('change', () => { db_sort = sortEl.value; applyFilters(); });
+
+  // Filter mode control
+  const filterModeEl = document.getElementById('dbFilterMode');
+  if (filterModeEl) filterModeEl.addEventListener('change', () => { db_filter_mode = filterModeEl.value; updateHint(); applyFilters(); });
+
+  // Search control (debounced)
+  const searchEl = document.getElementById('dbSearch');
+  let searchTimer;
+  if (searchEl) searchEl.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => { db_search = searchEl.value; applyFilters(); }, 250);
+  });
+
+  // Clear button
+  const clearBtn = document.getElementById('ptableClear');
+  if (clearBtn) clearBtn.addEventListener('click', () => {
+    db_selected.clear();
+    document.querySelectorAll('.pt-cell.selected').forEach(c => c.classList.remove('selected'));
+    updateHint();
+    applyFilters();
+  });
+})();
