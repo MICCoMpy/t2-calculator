@@ -125,7 +125,7 @@ def Area(D):
 
 # Calculate the T2 value of an element
 def T2_Kanai_Element(n_3D, g, I):
-    #T2_Eq2 = 1.5e18 * np.abs(g)**(-1.6) * I**(-1.1) * (n_3D)**(-1.0)
+    #T2_Eq2 = 1.5e18 * np.abs(g)**(-1.6) * I**(-1.1) * (n_3D)**(-1.0)    
     T2_Eq2 = 1.46e18 * np.abs(g)**(-1.64) * I**(-1.1) * (n_3D)**(-1.0)    
     return T2_Eq2
 
@@ -218,10 +218,11 @@ def Compute_T2_2D(struc: Structure) -> float:
     alpha_2D = 2.84 
     eta_3D = 1.5
     
+    T2_elems = []
+
     # Get elements (not species, which can have charge)
     elements = [str(specie) for specie in struc.composition.element_composition]
 
-    T2_elems = []
     for element in set(elements):
         df_elem = all_spins[all_spins["symbol"] == element]
         for i, row in df_elem.iterrows():
@@ -289,11 +290,9 @@ def Compute_T2_3D(struc: Structure) -> float:
         T2 value in **ms**.
     """
 
-    # Get elements (not species, which can have charge)
-    elements = [str(specie) for specie in struc.composition.element_composition]
-
-    T2_elems = []    
-    for element in set(elements):
+    T2_elems = []
+    for element in set(struc.species):
+        element = str(element)
         df_elem = all_spins[all_spins["symbol"] == element]
         for i, row in df_elem.iterrows():
 
